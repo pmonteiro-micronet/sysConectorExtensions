@@ -312,3 +312,25 @@ Login failed for user 'NT AUTHORITY\SYSTEM'.
 11/12/2024 11:48:29: Service is stopping...
 11/12/2024 11:48:29: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
 11/12/2024 11:48:29: Service stopped.
+11/12/2024 15:40:40: Service is starting...
+11/12/2024 15:40:40: Database connection successful.
+11/12/2024 15:40:40: Service started successfully.
+11/12/2024 15:40:40: HTTP Server started. Listening for requests...
+11/12/2024 15:41:17: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+11/12/2024 15:41:17: Request received: GET https://localhost:5001/favicon.ico
+11/12/2024 15:41:42: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+11/12/2024 15:44:49: Request received: GET https://192.168.10.112:5001/getstatement?ResNumber=1&window=0
+11/12/2024 15:44:50: Request received: GET https://192.168.10.112:5001/favicon.ico
+11/12/2024 15:45:07: Request received: GET https://192.168.10.112:5001/getstatement?ResNumber=1&window=0
+11/12/2024 15:45:08: Request received: GET https://192.168.10.112:5001/favicon.ico
+11/12/2024 16:48:26: Service is starting...
+11/12/2024 16:48:26: Database connection successful.
+11/12/2024 16:48:26: Service started successfully.
+11/12/2024 16:48:26: HTTP Server started. Listening for requests...
+11/12/2024 16:48:28: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+11/12/2024 16:48:29: Request received: GET https://localhost:5001/favicon.ico
+11/12/2024 16:49:54: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+11/12/2024 16:49:55: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+11/12/2024 16:54:46: Service is stopping...
+11/12/2024 16:54:46: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+11/12/2024 16:54:46: Service stopped.

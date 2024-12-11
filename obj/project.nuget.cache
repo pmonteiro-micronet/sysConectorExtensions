@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/pWtQj/7rog=",
+  "dgSpecHash": "siwakpA1jJk=",
   "success": true,
-  "projectFilePath": "C:\\Users\\cokas\\Desktop\\sysconectorstatements\\statements.csproj",
+  "projectFilePath": "C:\\Users\\cokas\\Desktop\\sysConectorExtensions\\statements.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\cokas\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.0\\microsoft.netcore.platforms.3.1.0.nupkg.sha512",
     "C:\\Users\\cokas\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",

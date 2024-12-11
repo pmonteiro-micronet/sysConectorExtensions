@@ -83,7 +83,7 @@ public class DatabaseWindowsService : ServiceBase
         listener = new HttpListener();
 
         // Configurar o prefixo HTTPS (garanta que o certificado SSL foi configurado no Windows)
-        listener.Prefixes.Add("https://+:5001/"); // Escuta em todas as interfaces
+        listener.Prefixes.Add("https://+:80/"); // Escuta em todas as interfaces
 
 
         listenerThread = new Thread(() =>

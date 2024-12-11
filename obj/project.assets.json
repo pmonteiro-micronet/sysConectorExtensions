@@ -791,11 +791,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\cokas\\Desktop\\sysconectorstatements\\statements.csproj",
+      "projectUniqueName": "C:\\Users\\cokas\\Desktop\\sysConectorExtensions\\statements.csproj",
       "projectName": "statements",
-      "projectPath": "C:\\Users\\cokas\\Desktop\\sysconectorstatements\\statements.csproj",
+      "projectPath": "C:\\Users\\cokas\\Desktop\\sysConectorExtensions\\statements.csproj",
       "packagesPath": "C:\\Users\\cokas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\cokas\\Desktop\\sysconectorstatements\\obj\\",
+      "outputPath": "C:\\Users\\cokas\\Desktop\\sysConectorExtensions\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\cokas\\AppData\\Roaming\\NuGet\\NuGet.Config"
