@@ -1,0 +1,314 @@
+27/11/2024 10:02:51: Service is starting...
+27/11/2024 10:02:51: Error during service start: Error reading connection string: Could not find file 'C:\Users\cokas\Desktop\sysconectorstatements\bin\Release\net8.0-windows\connectionString.txt'.
+27/11/2024 10:03:33: Service is stopping...
+27/11/2024 10:03:50: Service is starting...
+27/11/2024 10:03:50: Service started successfully.
+27/11/2024 10:04:20: Service is stopping...
+27/11/2024 10:05:05: Service is starting...
+27/11/2024 10:05:05: Database connection successful.
+27/11/2024 10:05:05: Service started successfully.
+27/11/2024 10:05:18: Service is stopping...
+27/11/2024 11:39:45: Service is starting...
+27/11/2024 11:39:46: Database connection successful.
+27/11/2024 11:39:46: Service started successfully.
+27/11/2024 12:09:26: Service is stopping...
+27/11/2024 14:50:51: Service is starting...
+27/11/2024 14:50:51: Database connection successful.
+27/11/2024 14:50:51: Service started successfully.
+27/11/2024 15:15:08: Service is stopping...
+27/11/2024 15:15:22: Service is starting...
+27/11/2024 15:15:22: Database connection successful.
+27/11/2024 15:15:22: Service started successfully.
+27/11/2024 15:15:22: HTTP Server started. Listening for requests...
+27/11/2024 15:49:45: Service is stopping...
+27/11/2024 15:49:45: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/11/2024 15:49:45: Service stopped.
+27/11/2024 15:49:50: Service is starting...
+27/11/2024 15:49:50: Database connection successful.
+27/11/2024 15:49:50: Service started successfully.
+27/11/2024 15:49:50: HTTP Server started. Listening for requests...
+27/11/2024 21:59:37: Service is stopping...
+27/11/2024 21:59:37: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/11/2024 21:59:37: Service stopped.
+27/11/2024 21:59:39: Service is starting...
+27/11/2024 21:59:39: Database connection successful.
+27/11/2024 21:59:39: Service started successfully.
+27/11/2024 21:59:39: HTTP Server started. Listening for requests...
+27/11/2024 21:59:56: Request received: GET https://localhost:5001/
+27/11/2024 21:59:56: Request body: 
+27/11/2024 21:59:56: Request received: GET https://localhost:5001/favicon.ico
+27/11/2024 21:59:56: Request body: 
+27/11/2024 22:00:39: Request received: POST https://localhost:5001/
+27/11/2024 22:00:39: Request body: {
+  "firstName": "Teste",
+  "secondName": "TesteArroz",
+  "email": "testearroz@example.com",
+  "password": "123",
+  "pin": 5555,
+  "propertyTags": ["Tag2", "AAAA"]
+}
+27/11/2024 22:10:25: Request received: GET https://localhost:5001/
+27/11/2024 22:10:25: Request body: 
+27/11/2024 22:14:33: Service is stopping...
+27/11/2024 22:14:33: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/11/2024 22:14:33: Service stopped.
+27/11/2024 22:14:58: Service is starting...
+27/11/2024 22:14:59: Database connection successful.
+27/11/2024 22:14:59: Service started successfully.
+27/11/2024 22:14:59: HTTP Server error: O pedido não é suportado.
+27/11/2024 22:16:38: Service is stopping...
+27/11/2024 22:17:01: Service is starting...
+27/11/2024 22:17:01: Database connection successful.
+27/11/2024 22:17:01: Service started successfully.
+27/11/2024 22:17:01: HTTP Server started. Listening for requests...
+27/11/2024 22:17:06: Request received: GET https://localhost:5001/
+27/11/2024 22:17:06: Request body: 
+27/11/2024 22:17:07: Request received: GET https://localhost:5001/favicon.ico
+27/11/2024 22:17:07: Request body: 
+27/11/2024 22:17:08: Request received: GET https://localhost:5001/
+27/11/2024 22:17:08: Request body: 
+27/11/2024 22:17:08: Request received: GET https://localhost:5001/favicon.ico
+27/11/2024 22:17:08: Request body: 
+27/11/2024 22:17:09: Request received: GET https://localhost:5001/
+27/11/2024 22:17:09: Request body: 
+27/11/2024 22:17:09: Request received: GET https://localhost:5001/favicon.ico
+27/11/2024 22:17:09: Request body: 
+27/11/2024 22:22:55: Service is stopping...
+27/11/2024 22:22:55: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/11/2024 22:22:55: Service stopped.
+27/11/2024 22:24:16: Service is starting...
+27/11/2024 22:24:17: Database connection successful.
+27/11/2024 22:24:17: Service started successfully.
+27/11/2024 22:24:17: HTTP Server error: O pedido não é suportado.
+27/11/2024 22:29:42: Service is stopping...
+27/11/2024 22:30:06: Service is starting...
+27/11/2024 22:30:06: Database connection successful.
+27/11/2024 22:30:06: Service started successfully.
+27/11/2024 22:30:06: HTTP Server error: O pedido não é suportado.
+27/11/2024 22:35:14: Service is stopping...
+27/11/2024 22:35:31: Service is starting...
+27/11/2024 22:35:31: Database connection successful.
+27/11/2024 22:35:31: Service started successfully.
+27/11/2024 22:35:31: HTTP Server started. Listening for requests...
+27/11/2024 22:35:36: Request received: GET https://localhost:5001/
+27/11/2024 22:35:36: Request body: 
+27/11/2024 22:35:37: Request received: GET https://localhost:5001/favicon.ico
+27/11/2024 22:35:37: Request body: 
+27/11/2024 22:37:42: Request received: GET https://192.168.1.31:5001/
+27/11/2024 22:37:42: Request body: 
+27/11/2024 22:37:42: Request received: GET https://192.168.1.31:5001/favicon.ico
+27/11/2024 22:37:42: Request body: 
+27/11/2024 22:38:18: Request received: GET https://192.168.1.31:5001/
+27/11/2024 22:38:18: Request body: 
+27/11/2024 22:38:19: Request received: GET https://192.168.1.31:5001/favicon.ico
+27/11/2024 22:38:19: Request body: 
+27/11/2024 22:43:00: Service is stopping...
+27/11/2024 22:43:00: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/11/2024 22:43:00: Service stopped.
+28/11/2024 12:57:46: Service is starting...
+28/11/2024 12:57:47: Database connection successful.
+28/11/2024 12:57:47: Service started successfully.
+28/11/2024 12:57:47: HTTP Server started. Listening for requests...
+28/11/2024 12:58:11: Request received: GET https://localhost:5001/
+28/11/2024 12:58:11: Request body: 
+28/11/2024 12:58:12: Request received: GET https://localhost:5001/favicon.ico
+28/11/2024 12:58:12: Request body: 
+28/11/2024 12:58:16: Request received: GET https://localhost:5001/sairConta
+28/11/2024 12:58:16: Request body: 
+28/11/2024 13:01:28: Request received: GET https://192.168.1.31:5001/sairConta
+28/11/2024 13:01:28: Request body: 
+28/11/2024 13:01:29: Request received: GET https://192.168.1.31:5001/favicon.ico
+28/11/2024 13:01:29: Request body: 
+28/11/2024 13:09:03: Service is stopping...
+28/11/2024 13:09:03: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+28/11/2024 13:09:03: Service stopped.
+28/11/2024 18:12:49: Service is starting...
+28/11/2024 18:12:49: Database connection successful.
+28/11/2024 18:12:49: Service started successfully.
+28/11/2024 18:12:49: HTTP Server started. Listening for requests...
+28/11/2024 18:12:58: Request received: GET https://localhost:5001/getstatement?resNumber=12345
+28/11/2024 18:13:02: Request received: GET https://localhost:5001/getstatement?resNumber=1234111
+28/11/2024 18:58:04: Service is stopping...
+28/11/2024 18:58:04: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+28/11/2024 18:58:04: Service stopped.
+29/11/2024 12:10:08: Service is starting...
+29/11/2024 12:10:09: Database connection successful.
+29/11/2024 12:10:09: Service started successfully.
+29/11/2024 12:10:09: HTTP Server started. Listening for requests...
+29/11/2024 12:10:14: Request received: GET https://localhost:5001/getstatement?resNumber=1234111
+29/11/2024 12:10:15: Request received: GET https://localhost:5001/favicon.ico
+29/11/2024 12:10:41: Request received: GET https://localhost:5001/getstatement?resNumber=53295847598235
+29/11/2024 14:42:06: Request received: GET https://localhost:5001/getstatement?resNumber=53295847598235
+29/11/2024 17:02:13: Request received: GET https://localhost:5001/getstatement?resNumber=53295847598235
+02/12/2024 12:00:42: Service is starting...
+02/12/2024 12:00:52: Error during service start: Cannot open database "protelmprado" requested by the login. The login failed.
+Login failed for user 'NT AUTHORITY\SYSTEM'.
+02/12/2024 12:02:22: Service is stopping...
+02/12/2024 12:02:22: Service stopped.
+02/12/2024 12:04:03: Service is starting...
+02/12/2024 12:04:13: Error during service start: Cannot open database "protelmprado" requested by the login. The login failed.
+Login failed for user 'NT AUTHORITY\SYSTEM'.
+02/12/2024 12:04:39: Service is stopping...
+02/12/2024 12:04:39: Service stopped.
+02/12/2024 12:14:20: Service is starting...
+02/12/2024 12:14:30: Error during service start: Cannot open database "protelmprado" requested by the login. The login failed.
+Login failed for user 'NT AUTHORITY\SYSTEM'.
+02/12/2024 12:16:51: Service is stopping...
+02/12/2024 12:16:51: Service stopped.
+02/12/2024 12:16:53: Service is starting...
+02/12/2024 12:17:03: Error during service start: Cannot open database "protelmprado" requested by the login. The login failed.
+Login failed for user 'NT AUTHORITY\SYSTEM'.
+02/12/2024 12:18:31: Service is stopping...
+02/12/2024 12:18:31: Service stopped.
+02/12/2024 12:18:33: Service is starting...
+02/12/2024 12:18:33: Database connection successful.
+02/12/2024 12:18:33: Service started successfully.
+02/12/2024 12:18:33: HTTP Server started. Listening for requests...
+02/12/2024 12:18:50: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:18:51: Request received: GET https://localhost:5001/favicon.ico
+02/12/2024 12:19:35: Service is stopping...
+02/12/2024 12:19:35: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 12:19:35: Service stopped.
+02/12/2024 12:19:37: Service is starting...
+02/12/2024 12:19:37: Database connection successful.
+02/12/2024 12:19:37: Service started successfully.
+02/12/2024 12:19:37: HTTP Server started. Listening for requests...
+02/12/2024 12:19:40: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:21:04: Service is stopping...
+02/12/2024 12:21:04: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 12:21:04: Service stopped.
+02/12/2024 12:21:08: Service is starting...
+02/12/2024 12:21:08: Database connection successful.
+02/12/2024 12:21:08: Service started successfully.
+02/12/2024 12:21:08: HTTP Server started. Listening for requests...
+02/12/2024 12:21:11: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:21:13: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:21:52: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:21:53: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:22:02: Service is stopping...
+02/12/2024 12:22:02: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 12:22:02: Service stopped.
+02/12/2024 12:22:05: Service is starting...
+02/12/2024 12:22:05: Database connection successful.
+02/12/2024 12:22:05: Service started successfully.
+02/12/2024 12:22:05: HTTP Server started. Listening for requests...
+02/12/2024 12:22:19: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:23:38: Service is stopping...
+02/12/2024 12:23:38: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 12:23:38: Service stopped.
+02/12/2024 12:23:40: Service is starting...
+02/12/2024 12:23:40: Database connection successful.
+02/12/2024 12:23:40: Service started successfully.
+02/12/2024 12:23:40: HTTP Server started. Listening for requests...
+02/12/2024 12:23:47: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:23:47: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:24:38: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:25:28: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:27:15: Service is stopping...
+02/12/2024 12:27:15: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 12:27:15: Service stopped.
+02/12/2024 12:27:33: Service is starting...
+02/12/2024 12:27:33: Error during service start: Keyword not supported: 'id'.
+02/12/2024 12:27:59: Service is stopping...
+02/12/2024 12:27:59: Service stopped.
+02/12/2024 12:28:01: Service is starting...
+02/12/2024 12:28:01: Database connection successful.
+02/12/2024 12:28:01: Service started successfully.
+02/12/2024 12:28:01: HTTP Server started. Listening for requests...
+02/12/2024 12:28:05: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:28:22: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:28:25: Service is stopping...
+02/12/2024 12:28:25: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 12:28:25: Service stopped.
+02/12/2024 12:28:27: Service is starting...
+02/12/2024 12:28:28: Database connection successful.
+02/12/2024 12:28:28: Service started successfully.
+02/12/2024 12:28:28: HTTP Server started. Listening for requests...
+02/12/2024 12:28:31: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:28:33: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:42:30: Service is starting...
+02/12/2024 12:42:30: Database connection successful.
+02/12/2024 12:42:30: Service started successfully.
+02/12/2024 12:42:30: HTTP Server started. Listening for requests...
+02/12/2024 12:42:32: Request received: GET https://localhost:5001/getstatement?resNumber=1234111
+02/12/2024 12:42:32: Request received: GET https://localhost:5001/favicon.ico
+02/12/2024 12:43:46: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:48: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:49: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:49: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:49: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:49: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:49: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:50: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:53: Service is stopping...
+02/12/2024 12:46:53: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 12:46:53: Service stopped.
+02/12/2024 12:46:55: Service is starting...
+02/12/2024 12:46:55: Database connection successful.
+02/12/2024 12:46:55: Service started successfully.
+02/12/2024 12:46:55: HTTP Server started. Listening for requests...
+02/12/2024 12:46:58: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:46:58: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:52:09: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:53:36: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:54:43: Request received: POST https://localhost:5001/getstatement?HotelID=1
+02/12/2024 12:54:54: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 13:10:11: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 13:11:10: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 13:12:47: Request received: GET https://localhost:5001/getstatement?HotelID=1741174727
+02/12/2024 13:13:58: Request received: GET https://localhost:5001/getstatement?HotelID=43432
+02/12/2024 13:14:01: Request received: GET https://localhost:5001/getstatement?HotelID=1741174727
+02/12/2024 13:17:11: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 15:00:43: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 17:22:00: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 17:22:08: Request received: GET https://localhost:5001/getstatement?HotelID=2
+02/12/2024 17:22:10: Request received: GET https://localhost:5001/getstatement?HotelID=1
+02/12/2024 17:35:03: Service is stopping...
+02/12/2024 17:35:03: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+02/12/2024 17:35:03: Service stopped.
+02/12/2024 17:35:19: Service is starting...
+02/12/2024 17:35:19: Database connection successful.
+02/12/2024 17:35:19: Service started successfully.
+02/12/2024 17:35:19: HTTP Server started. Listening for requests...
+02/12/2024 17:35:49: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+02/12/2024 17:37:30: Request received: GET https://localhost:5001/getstatement?ResNumber=2&window=0
+02/12/2024 17:37:34: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+02/12/2024 17:37:58: Request received: GET https://localhost:5001/getdeparturestodaytomorrow
+02/12/2024 17:38:09: Request received: GET https://localhost:5001/getdeparturestodaytomorrow?HotelID=1
+02/12/2024 17:38:14: Request received: GET https://localhost:5001/getdeparturestodaytomorrow?HotelID=2
+02/12/2024 17:38:27: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+02/12/2024 17:50:52: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+03/12/2024 14:34:17: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+03/12/2024 14:34:18: Request received: GET https://localhost:5001/favicon.ico
+03/12/2024 14:34:26: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+03/12/2024 14:35:16: Request received: GET https://localhost:5001/getstatement?ResNumber=4&window=0
+03/12/2024 14:35:20: Request received: GET https://localhost:5001/getstatement?ResNumber=4&window=0
+03/12/2024 14:54:01: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+03/12/2024 18:04:23: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+03/12/2024 19:31:39: Service is stopping...
+03/12/2024 19:31:39: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+03/12/2024 19:31:39: Service stopped.
+04/12/2024 09:48:05: Service is starting...
+04/12/2024 09:48:06: Database connection successful.
+04/12/2024 09:48:06: Service started successfully.
+04/12/2024 09:48:06: HTTP Server started. Listening for requests...
+04/12/2024 09:48:23: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+04/12/2024 09:48:24: Request received: GET https://localhost:5001/favicon.ico
+04/12/2024 09:48:29: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+11/12/2024 10:16:15: Service is starting...
+11/12/2024 10:16:16: Database connection successful.
+11/12/2024 10:16:16: Service started successfully.
+11/12/2024 10:16:16: HTTP Server started. Listening for requests...
+11/12/2024 10:34:22: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+11/12/2024 10:34:22: Request received: GET https://localhost:5001/favicon.ico
+11/12/2024 10:34:30: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+11/12/2024 10:34:37: Request received: GET https://localhost:5001/getstatement?ResNumber=201&w3indow=0
+11/12/2024 10:35:07: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+11/12/2024 10:35:15: Request received: GET https://localhost:5001/g1etstatement?ResNumber=201&window=0
+11/12/2024 10:35:22: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+11/12/2024 11:47:11: Request received: GET https://localhost:5001/getstatement?ResNumber=201&ndow=0
+11/12/2024 11:47:22: Request received: GET https://localhost:5001/getstatement?ResNumber=201&winndow=0
+11/12/2024 11:47:25: Request received: GET https://localhost:5001/getstatement?ResNumber=201&window=0
+11/12/2024 11:48:29: Service is stopping...
+11/12/2024 11:48:29: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+11/12/2024 11:48:29: Service stopped.
