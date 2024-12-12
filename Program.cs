@@ -79,19 +79,23 @@ public class DatabaseWindowsService : ServiceBase
     }
 
     private void StartHttpServer()
+{
+    try
     {
+        // Ler a porta do arquivo
+        int port = ReadPortFromFile("port.txt");
+
         listener = new HttpListener();
 
-        // Configurar o prefixo HTTPS (garanta que o certificado SSL foi configurado no Windows)
-        listener.Prefixes.Add("https://+:80/"); // Escuta em todas as interfaces
-
+        // Configurar o prefixo HTTPS usando a porta especificada
+        listener.Prefixes.Add($"https://+:{port}/"); // Escuta em todas as interfaces
 
         listenerThread = new Thread(() =>
         {
             try
             {
                 listener.Start();
-                Log("HTTP Server started. Listening for requests...");
+                Log($"HTTP Server started on port {port}. Listening for requests...");
 
                 while (listener.IsListening)
                 {
@@ -108,6 +112,34 @@ public class DatabaseWindowsService : ServiceBase
         listenerThread.IsBackground = true;
         listenerThread.Start();
     }
+    catch (Exception ex)
+    {
+        Log($"Error starting HTTP Server: {ex.Message}");
+    }
+}
+
+private static int ReadPortFromFile(string filePath)
+{
+    try
+    {
+        string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+        string portString = File.ReadAllText(absolutePath).Trim();
+
+        if (int.TryParse(portString, out int port) && port > 0 && port <= 65535)
+        {
+            return port;
+        }
+        else
+        {
+            throw new Exception("Invalid port number in file.");
+        }
+    }
+    catch (Exception ex)
+    {
+        throw new Exception("Error reading port from file: " + ex.Message);
+    }
+}
+
 
     private void StopHttpServer()
     {
