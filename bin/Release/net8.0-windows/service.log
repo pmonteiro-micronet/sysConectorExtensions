@@ -355,3 +355,18 @@ Login failed for user 'NT AUTHORITY\SYSTEM'.
 12/12/2024 17:11:12: Database connection successful.
 12/12/2024 17:11:12: Service started successfully.
 12/12/2024 17:11:12: HTTP Server started on port 5001. Listening for requests...
+12/12/2024 17:14:33: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+12/12/2024 17:14:34: Request received: GET https://localhost:5001/favicon.ico
+12/12/2024 19:26:47: Service is stopping...
+12/12/2024 19:26:47: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+12/12/2024 19:26:47: Service stopped.
+16/12/2024 11:30:49: Service is starting...
+16/12/2024 11:30:50: Database connection successful.
+16/12/2024 11:30:50: Service started successfully.
+16/12/2024 11:30:50: HTTP Server started on port 5001. Listening for requests...
+16/12/2024 11:31:27: Request received: GET https://localhost:5001/getstatement?ResNumber=1&window=0
+16/12/2024 11:31:28: Request received: GET https://localhost:5001/favicon.ico
+16/12/2024 11:39:54: Request received: GET https://localhost:5001/getstatement
+16/12/2024 11:44:28: Service is stopping...
+16/12/2024 11:44:28: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+16/12/2024 11:44:28: Service stopped.

@@ -88,7 +88,7 @@ public class DatabaseWindowsService : ServiceBase
         listener = new HttpListener();
 
         // Configurar o prefixo HTTPS usando a porta especificada
-        listener.Prefixes.Add($"https://+:{port}/"); // Escuta em todas as interfaces
+        listener.Prefixes.Add($"http://+:{port}/"); // Escuta em todas as interfaces
 
         listenerThread = new Thread(() =>
         {
