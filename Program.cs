@@ -162,7 +162,7 @@ private static int ReadPortFromFile(string filePath)
         string urlPath = context.Request.Url.AbsolutePath.ToLower(); // Caminho da URL
         string responseMessage = "";
 
-        if (urlPath == "/getdeparturestodaytomorrow")
+        if (urlPath == "/pp_xml_ckit_statementcheckouts")
         {
             // Verificar se o método é GET
             if (context.Request.HttpMethod == "GET")
@@ -200,7 +200,7 @@ private static int ReadPortFromFile(string filePath)
                 context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
         }
-        else if (urlPath == "/getstatement")
+        else if (urlPath == "/pp_xml_ckit_extratoconta")
         {
             // Verificar se o método é GET
             if (context.Request.HttpMethod == "GET")
