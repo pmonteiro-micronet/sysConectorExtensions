@@ -200,6 +200,44 @@ private static int ReadPortFromFile(string filePath)
                 context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
         }
+        else if (urlPath == "/pp_xml_ckit_statementcheckins")
+        {
+            // Verificar se o método é GET
+            if (context.Request.HttpMethod == "GET")
+            {
+                // Obter o parâmetro "HotelID" da query string
+                string hotelID = context.Request.QueryString["HotelID"];
+
+                if (!string.IsNullOrEmpty(hotelID))
+                {
+                    try
+                    {
+                        // Executar o script SQL com o parâmetro HotelID
+                        string jsonResult = ExecuteSqlScriptWithParameterArrivals(hotelID);
+
+                        // Retornar o resultado
+                        responseMessage = jsonResult;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.ContentType = "application/json";
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Erro: Parâmetro 'HotelID' não foi fornecido.";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
+            }
+            else
+            {
+                responseMessage = "Método HTTP não suportado nesta rota.";
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+            }
+        }
         else if (urlPath == "/pp_xml_ckit_extratoconta")
         {
             // Verificar se o método é GET
@@ -264,6 +302,45 @@ private static int ReadPortFromFile(string filePath)
 private string ExecuteSqlScriptWithParameter(string hotelID)
 {
     string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "departuresTodayTomorrow.sql");
+
+    if (!File.Exists(sqlScriptPath))
+    {
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+    }
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+    sqlScript = sqlScript.Replace("{STATEMENT_CHECKOUTS_WEBSERVICE.HotelID}", hotelID);
+
+    using (SqlConnection connection = new SqlConnection(connectionString))
+    {
+        connection.Open();
+
+        using (SqlCommand command = new SqlCommand(sqlScript, connection))
+        {
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        // Tratar para remover a chave JSON desnecessária
+                        var cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
+                    }
+                }
+
+                return jsonResult.ToString();
+            }
+        }
+    }
+}
+
+private string ExecuteSqlScriptWithParameterArrivals(string hotelID)
+{
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "arrivalsTodayTomorrow.sql");
 
     if (!File.Exists(sqlScriptPath))
     {
