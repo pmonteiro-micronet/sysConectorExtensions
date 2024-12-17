@@ -348,7 +348,7 @@ private string ExecuteSqlScriptWithParameterArrivals(string hotelID)
     }
 
     string sqlScript = File.ReadAllText(sqlScriptPath);
-    sqlScript = sqlScript.Replace("{STATEMENT_CHECKOUTS_WEBSERVICE.HotelID}", hotelID);
+    sqlScript = sqlScript.Replace("{STATEMENT_CHECKINS_WEBSERVICE.HotelID}", hotelID);
 
     using (SqlConnection connection = new SqlConnection(connectionString))
     {
