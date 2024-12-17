@@ -282,35 +282,47 @@ private string ExecuteSqlScriptWithParameter(string hotelID)
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 StringBuilder jsonResult = new StringBuilder();
-                jsonResult.Append("[");
 
-                bool firstRow = true;
                 while (reader.Read())
                 {
-                    if (!firstRow)
-                        jsonResult.Append(",");
-
-                    jsonResult.Append("{");
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
                     {
-                        if (i > 0)
-                            jsonResult.Append(",");
-
-                        string columnName = reader.GetName(i);
-                        string columnValue = reader[i]?.ToString() ?? "null";
-
-                        jsonResult.AppendFormat("\"{0}\":\"{1}\"", columnName, columnValue.Replace("\"", "\\\""));
+                        // Tratar para remover a chave JSON desnecessária
+                        var cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
                     }
-                    jsonResult.Append("}");
-                    firstRow = false;
                 }
 
-                jsonResult.Append("]");
                 return jsonResult.ToString();
             }
         }
     }
 }
+
+private string CleanJson(string jsonRaw)
+{
+    try
+    {
+        var jsonObject = System.Text.Json.JsonDocument.Parse(jsonRaw).RootElement;
+        
+        // Verifica se é uma única chave (o caso do JSON_F52E2B61-18A1-11d1)
+        if (jsonObject.EnumerateObject().Count() == 1)
+        {
+            foreach (var element in jsonObject.EnumerateObject())
+            {
+                return element.Value.ToString(); // Retorna o valor puro
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Log($"Erro ao processar JSON: {ex.Message}");
+    }
+
+    return jsonRaw; // Caso não consiga tratar
+}
+
 
 private string ExecuteSqlScriptWithParameters(string resNumber, string window)
 {
@@ -335,30 +347,19 @@ private string ExecuteSqlScriptWithParameters(string resNumber, string window)
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 StringBuilder jsonResult = new StringBuilder();
-                jsonResult.Append("[");
 
-                bool firstRow = true;
                 while (reader.Read())
                 {
-                    if (!firstRow)
-                        jsonResult.Append(",");
-
-                    jsonResult.Append("{");
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    // Extrai o JSON bruto retornado pela consulta
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
                     {
-                        if (i > 0)
-                            jsonResult.Append(",");
-
-                        string columnName = reader.GetName(i);
-                        string columnValue = reader[i]?.ToString() ?? "null";
-
-                        jsonResult.AppendFormat("\"{0}\":\"{1}\"", columnName, columnValue.Replace("\"", "\\\""));
+                        // Limpa a chave extra e obtém apenas o valor do JSON
+                        string cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
                     }
-                    jsonResult.Append("}");
-                    firstRow = false;
                 }
 
-                jsonResult.Append("]");
                 return jsonResult.ToString();
             }
         }
