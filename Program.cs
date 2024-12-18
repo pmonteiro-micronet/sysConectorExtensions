@@ -120,29 +120,28 @@ public class DatabaseWindowsService : ServiceBase
             }
             else if (urlPath == "/registration_form_base64" && context.Request.HttpMethod == "POST")
 {
-    using (var reader = new StreamReader(context.Request.InputStream))
+    // Obter o nome do arquivo do cabeçalho
+    string fileName = context.Request.Headers["FileName"];
+    if (string.IsNullOrEmpty(fileName))
     {
-        string requestBody = reader.ReadToEnd();
-        var requestData = JsonSerializer.Deserialize<JsonElement>(requestBody);
-
-        if (requestData.TryGetProperty("pdfBase64", out var pdfBase64Element) &&
-            requestData.TryGetProperty("fileName", out var fileNameElement))
+        responseMessage = "Cabeçalho 'FileName' é obrigatório.";
+        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+    }
+    else
+    {
+        // Ler o conteúdo do corpo (base64)
+        using (var reader = new StreamReader(context.Request.InputStream))
         {
-            string pdfBase64 = pdfBase64Element.GetString();
-            string fileName = fileNameElement.GetString();
-
-            if (!string.IsNullOrEmpty(pdfBase64) && !string.IsNullOrEmpty(fileName))
+            string base64Content = reader.ReadToEnd();
+            if (!string.IsNullOrEmpty(base64Content))
             {
-                responseMessage = SaveBase64Pdf(pdfBase64, fileName);
+                responseMessage = SaveBase64Pdf(base64Content, fileName);
             }
             else
             {
-                responseMessage = "Parâmetros 'pdfBase64' e 'fileName' são obrigatórios.";
+                responseMessage = "O corpo da requisição deve conter o conteúdo base64.";
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
             }
-        }
-        else
-        {
-            responseMessage = "Parâmetros 'pdfBase64' e 'fileName' são obrigatórios.";
         }
     }
 }
@@ -238,6 +237,7 @@ public class DatabaseWindowsService : ServiceBase
     Log($"PDF saved at {filePath}");
     return filePath;
 }
+
 
 
     private void Log(string message)

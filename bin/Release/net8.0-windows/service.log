@@ -393,3 +393,9 @@ Login failed for user 'NT AUTHORITY\SYSTEM'.
 17/12/2024 15:33:35: Service is stopping...
 17/12/2024 15:33:35: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
 17/12/2024 15:33:35: Service stopped.
+18/12/2024 13:07:35: Service is starting...
+18/12/2024 13:07:35: Database connection successful.
+18/12/2024 13:07:35: Service started successfully.
+18/12/2024 13:07:35: HTTP Server started on port 5001
+18/12/2024 13:10:31: Error handling request: 'J' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
+18/12/2024 16:16:25: Service is stopping...
