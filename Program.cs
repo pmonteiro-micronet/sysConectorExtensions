@@ -231,12 +231,19 @@ public class DatabaseWindowsService : ServiceBase
     string saveDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PDFs");
     Directory.CreateDirectory(saveDir);
 
+    // Verificar e garantir que o nome do arquivo tenha a extensão .pdf
+    if (!fileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+    {
+        fileName += ".pdf";
+    }
+
     string filePath = Path.Combine(saveDir, fileName);
 
     File.WriteAllBytes(filePath, Convert.FromBase64String(base64Content));
     Log($"PDF saved at {filePath}");
     return filePath;
 }
+
 
 
 
