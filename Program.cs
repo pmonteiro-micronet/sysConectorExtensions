@@ -119,12 +119,34 @@ public class DatabaseWindowsService : ServiceBase
                     : "Parâmetro 'HotelID' é obrigatório.";
             }
             else if (urlPath == "/registration_form_base64" && context.Request.HttpMethod == "POST")
+{
+    using (var reader = new StreamReader(context.Request.InputStream))
+    {
+        string requestBody = reader.ReadToEnd();
+        var requestData = JsonSerializer.Deserialize<JsonElement>(requestBody);
+
+        if (requestData.TryGetProperty("pdfBase64", out var pdfBase64Element) &&
+            requestData.TryGetProperty("fileName", out var fileNameElement))
+        {
+            string pdfBase64 = pdfBase64Element.GetString();
+            string fileName = fileNameElement.GetString();
+
+            if (!string.IsNullOrEmpty(pdfBase64) && !string.IsNullOrEmpty(fileName))
             {
-                string base64Content = new StreamReader(context.Request.InputStream).ReadToEnd();
-                responseMessage = !string.IsNullOrEmpty(base64Content)
-                    ? SaveBase64Pdf(base64Content)
-                    : "Nenhum conteúdo foi enviado.";
+                responseMessage = SaveBase64Pdf(pdfBase64, fileName);
             }
+            else
+            {
+                responseMessage = "Parâmetros 'pdfBase64' e 'fileName' são obrigatórios.";
+            }
+        }
+        else
+        {
+            responseMessage = "Parâmetros 'pdfBase64' e 'fileName' são obrigatórios.";
+        }
+    }
+}
+
             else if (urlPath == "/pp_xml_ckit_extratoconta" && context.Request.HttpMethod == "GET")
             {
                 string resNumber = context.Request.QueryString["ResNumber"];
@@ -205,18 +227,18 @@ public class DatabaseWindowsService : ServiceBase
         return jsonResult.ToString();
     }
 
-    private string SaveBase64Pdf(string base64Content)
-    {
-        string saveDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PDFs");
-        Directory.CreateDirectory(saveDir);
+    private string SaveBase64Pdf(string base64Content, string fileName)
+{
+    string saveDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PDFs");
+    Directory.CreateDirectory(saveDir);
 
-        string fileName = $"registration_form_{DateTime.Now:yyyyMMddHHmmss}.pdf";
-        string filePath = Path.Combine(saveDir, fileName);
+    string filePath = Path.Combine(saveDir, fileName);
 
-        File.WriteAllBytes(filePath, Convert.FromBase64String(base64Content));
-        Log($"PDF saved at {filePath}");
-        return filePath;
-    }
+    File.WriteAllBytes(filePath, Convert.FromBase64String(base64Content));
+    Log($"PDF saved at {filePath}");
+    return filePath;
+}
+
 
     private void Log(string message)
     {
