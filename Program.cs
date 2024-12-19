@@ -5,11 +5,10 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Data.SqlClient;
-using System.Text.Json;
 
 public class DatabaseWindowsService : ServiceBase
 {
-    private string connectionString;
+    private static string connectionString;
     private HttpListener listener;
     private Thread listenerThread;
 
@@ -27,11 +26,13 @@ public class DatabaseWindowsService : ServiceBase
         {
             Log("Service is starting...");
 
-            // Ler connection string
+            // Ler a connection string do arquivo
             connectionString = ReadConnectionStringFromFile("connectionString.txt");
+
+            // Testar conexão ao banco de dados
             TestDatabaseConnection();
 
-            // Iniciar o servidor HTTP
+            // Iniciar servidor HTTP/HTTPS
             StartHttpServer();
 
             Log("Service started successfully.");
@@ -49,13 +50,20 @@ public class DatabaseWindowsService : ServiceBase
         Log("Service stopped.");
     }
 
-    private string ReadConnectionStringFromFile(string filePath)
+    private static string ReadConnectionStringFromFile(string filePath)
     {
-        string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
-        return File.ReadAllText(fullPath).Trim();
+        try
+        {
+            string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+            return File.ReadAllText(absolutePath).Trim();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error reading connection string: " + ex.Message);
+        }
     }
 
-    private void TestDatabaseConnection()
+    private static void TestDatabaseConnection()
     {
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
@@ -64,61 +72,173 @@ public class DatabaseWindowsService : ServiceBase
         }
     }
 
-    private void StartHttpServer()
+    private static void Log(string message)
     {
+        string logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "service.log");
+        File.AppendAllText(logFile, $"{DateTime.Now}: {message}{Environment.NewLine}");
+    }
+
+    private void StartHttpServer()
+{
+    try
+    {
+        // Ler a porta do arquivo
         int port = ReadPortFromFile("port.txt");
+
         listener = new HttpListener();
-        listener.Prefixes.Add($"http://+:{port}/");
+
+        // Configurar o prefixo HTTPS usando a porta especificada
+        listener.Prefixes.Add($"http://+:{port}/"); // Escuta em todas as interfaces
 
         listenerThread = new Thread(() =>
         {
-            listener.Start();
-            Log($"HTTP Server started on port {port}");
-
-            while (listener.IsListening)
+            try
             {
-                var context = listener.GetContext();
-                ThreadPool.QueueUserWorkItem(_ => HandleRequest(context));
+                listener.Start();
+                Log($"HTTP Server started on port {port}. Listening for requests...");
+
+                while (listener.IsListening)
+                {
+                    var context = listener.GetContext(); // Espera por requisições
+                    ThreadPool.QueueUserWorkItem(_ => HandleRequest(context));
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"HTTP Server error: {ex.Message}");
             }
         });
+
         listenerThread.IsBackground = true;
         listenerThread.Start();
     }
+    catch (Exception ex)
+    {
+        Log($"Error starting HTTP Server: {ex.Message}");
+    }
+}
+
+private static int ReadPortFromFile(string filePath)
+{
+    try
+    {
+        string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+        string portString = File.ReadAllText(absolutePath).Trim();
+
+        if (int.TryParse(portString, out int port) && port > 0 && port <= 65535)
+        {
+            return port;
+        }
+        else
+        {
+            throw new Exception("Invalid port number in file.");
+        }
+    }
+    catch (Exception ex)
+    {
+        throw new Exception("Error reading port from file: " + ex.Message);
+    }
+}
+
 
     private void StopHttpServer()
     {
-        listener?.Stop();
-        listenerThread?.Join();
-    }
+        if (listener != null)
+        {
+            listener.Stop();
+            listener.Close();
+        }
 
-    private int ReadPortFromFile(string filePath)
-    {
-        string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
-        return int.Parse(File.ReadAllText(fullPath).Trim());
+        if (listenerThread != null && listenerThread.IsAlive)
+        {
+            listenerThread.Join();
+        }
     }
 
     private void HandleRequest(HttpListenerContext context)
+{
+    try
     {
-        try
-        {
-            string urlPath = context.Request.Url.AbsolutePath.ToLower();
-            string responseMessage = "";
+        string urlPath = context.Request.Url.AbsolutePath.ToLower(); // Caminho da URL
+        string responseMessage = "";
 
-            if (urlPath == "/pp_xml_ckit_statementcheckouts" && context.Request.HttpMethod == "GET")
+        if (urlPath == "/pp_xml_ckit_statementcheckouts")
+        {
+            // Verificar se o método é GET
+            if (context.Request.HttpMethod == "GET")
             {
+                // Obter o parâmetro "HotelID" da query string
                 string hotelID = context.Request.QueryString["HotelID"];
-                responseMessage = !string.IsNullOrEmpty(hotelID)
-                    ? ExecuteSqlScriptWithParameter("departuresTodayTomorrow.sql", hotelID)
-                    : "Parâmetro 'HotelID' é obrigatório.";
+
+                if (!string.IsNullOrEmpty(hotelID))
+                {
+                    try
+                    {
+                        // Executar o script SQL com o parâmetro HotelID
+                        string jsonResult = ExecuteSqlScriptWithParameterCheckouts(hotelID);
+
+                        // Retornar o resultado
+                        responseMessage = jsonResult;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.ContentType = "application/json";
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Erro: Parâmetro 'HotelID' não foi fornecido.";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
             }
-            else if (urlPath == "/pp_xml_ckit_statementcheckins" && context.Request.HttpMethod == "GET")
+            else
             {
-                string hotelID = context.Request.QueryString["HotelID"];
-                responseMessage = !string.IsNullOrEmpty(hotelID)
-                    ? ExecuteSqlScriptWithParameter("arrivalsTodayTomorrow.sql", hotelID)
-                    : "Parâmetro 'HotelID' é obrigatório.";
+                responseMessage = "Método HTTP não suportado nesta rota.";
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
-            else if (urlPath == "/registration_form_base64" && context.Request.HttpMethod == "POST")
+        }
+        else if (urlPath == "/pp_xml_ckit_statementcheckins")
+        {
+            // Verificar se o método é GET
+            if (context.Request.HttpMethod == "GET")
+            {
+                // Obter o parâmetro "HotelID" da query string
+                string hotelID = context.Request.QueryString["HotelID"];
+
+                if (!string.IsNullOrEmpty(hotelID))
+                {
+                    try
+                    {
+                        // Executar o script SQL com o parâmetro HotelID
+                        string jsonResult = ExecuteSqlScriptWithParameterArrivals(hotelID);
+
+                        // Retornar o resultado
+                        responseMessage = jsonResult;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.ContentType = "application/json";
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Erro: Parâmetro 'HotelID' não foi fornecido.";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
+            }
+            else
+            {
+                responseMessage = "Método HTTP não suportado nesta rota.";
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+            }
+        }
+        else if (urlPath == "/registration_form_base64" && context.Request.HttpMethod == "POST")
 {
     // Obter o nome do arquivo do cabeçalho
     string fileName = context.Request.Headers["FileName"];
@@ -145,88 +265,169 @@ public class DatabaseWindowsService : ServiceBase
         }
     }
 }
-
-            else if (urlPath == "/pp_xml_ckit_extratoconta" && context.Request.HttpMethod == "GET")
+        else if (urlPath == "/pp_xml_ckit_extratoconta")
+        {
+            // Verificar se o método é GET
+            if (context.Request.HttpMethod == "GET")
             {
+                // Obter os parâmetros "ResNumber" e "window" da query string
                 string resNumber = context.Request.QueryString["ResNumber"];
                 string window = context.Request.QueryString["window"];
-                responseMessage = (!string.IsNullOrEmpty(resNumber) && !string.IsNullOrEmpty(window))
-                    ? ExecuteSqlScriptWithParameters("statement.sql", resNumber, window)
-                    : "Parâmetros 'ResNumber' e 'window' são obrigatórios.";
+
+                if (!string.IsNullOrEmpty(resNumber) && !string.IsNullOrEmpty(window))
+                {
+                    try
+                    {
+                        // Executar o script SQL com os parâmetros
+                        string jsonResult = ExecuteSqlScriptWithParametersExtrato(resNumber, window);
+
+                        // Retornar o resultado
+                        responseMessage = jsonResult;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.ContentType = "application/json";
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Erro: Parâmetros 'ResNumber' e 'window' são obrigatórios.";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
             }
             else
             {
-                responseMessage = "Rota não reconhecida.";
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                responseMessage = "Método HTTP não suportado nesta rota.";
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
-
-            SendResponse(context, responseMessage);
         }
-        catch (Exception ex)
+        else
         {
-            Log($"Error handling request: {ex.Message}");
+            responseMessage = "Rota não reconhecida.";
+            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
         }
-    }
 
-    private void SendResponse(HttpListenerContext context, string message)
-    {
-        byte[] buffer = Encoding.UTF8.GetBytes(message);
-        context.Response.ContentLength64 = buffer.Length;
-        context.Response.OutputStream.Write(buffer, 0, buffer.Length);
+        // Log da requisição
+        Log($"Request received: {context.Request.HttpMethod} {context.Request.Url}");
+
+        // Enviar a resposta
+        byte[] responseBytes = Encoding.UTF8.GetBytes(responseMessage);
+        context.Response.ContentLength64 = responseBytes.Length;
+        context.Response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
         context.Response.OutputStream.Close();
     }
-
-    private string ExecuteSqlScriptWithParameter(string sqlFileName, string hotelID)
+    catch (Exception ex)
     {
-        string sqlScript = LoadSqlScript(sqlFileName);
-        sqlScript = sqlScript.Replace("{HotelID}", hotelID);
+        Log($"Error handling request: {ex.Message}");
+    }
+}
 
-        using (SqlConnection connection = new SqlConnection(connectionString))
+
+private string ExecuteSqlScriptWithParameterCheckouts(string hotelID)
+{
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "departuresTodayTomorrow.sql");
+
+    if (!File.Exists(sqlScriptPath))
+    {
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+    }
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+    sqlScript = sqlScript.Replace("{STATEMENT_CHECKOUTS_WEBSERVICE.HotelID}", hotelID);
+
+    using (SqlConnection connection = new SqlConnection(connectionString))
+    {
+        connection.Open();
+
         using (SqlCommand command = new SqlCommand(sqlScript, connection))
         {
-            connection.Open();
             using (SqlDataReader reader = command.ExecuteReader())
             {
-                return ReadJsonResult(reader);
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        // Tratar para remover a chave JSON desnecessária
+                        var cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
+                    }
+                }
+
+                return jsonResult.ToString();
             }
         }
     }
+}
 
-    private string ExecuteSqlScriptWithParameters(string sqlFileName, string resNumber, string window)
+private string ExecuteSqlScriptWithParameterArrivals(string hotelID)
+{
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "arrivalsTodayTomorrow.sql");
+
+    if (!File.Exists(sqlScriptPath))
     {
-        string sqlScript = LoadSqlScript(sqlFileName)
-            .Replace("{ResNumber}", resNumber)
-            .Replace("{window}", window);
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+    }
 
-        using (SqlConnection connection = new SqlConnection(connectionString))
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+    sqlScript = sqlScript.Replace("{STATEMENT_CHECKINS_WEBSERVICE.HotelID}", hotelID);
+
+    using (SqlConnection connection = new SqlConnection(connectionString))
+    {
+        connection.Open();
+
         using (SqlCommand command = new SqlCommand(sqlScript, connection))
         {
-            connection.Open();
             using (SqlDataReader reader = command.ExecuteReader())
             {
-                return ReadJsonResult(reader);
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        // Tratar para remover a chave JSON desnecessária
+                        var cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
+                    }
+                }
+
+                return jsonResult.ToString();
             }
         }
     }
+}
 
-    private string LoadSqlScript(string sqlFileName)
+private string CleanJson(string jsonRaw)
+{
+    try
     {
-        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", sqlFileName);
-        return File.ReadAllText(path);
-    }
-
-    private string ReadJsonResult(SqlDataReader reader)
-    {
-        StringBuilder jsonResult = new StringBuilder();
-        while (reader.Read())
+        var jsonObject = System.Text.Json.JsonDocument.Parse(jsonRaw).RootElement;
+        
+        // Verifica se é uma única chave (o caso do JSON_F52E2B61-18A1-11d1)
+        if (jsonObject.EnumerateObject().Count() == 1)
         {
-            string jsonRaw = reader[0]?.ToString();
-            jsonResult.Append(jsonRaw);
+            foreach (var element in jsonObject.EnumerateObject())
+            {
+                return element.Value.ToString(); // Retorna o valor puro
+            }
         }
-        return jsonResult.ToString();
+    }
+    catch (Exception ex)
+    {
+        Log($"Erro ao processar JSON: {ex.Message}");
     }
 
-    private string SaveBase64Pdf(string base64Content, string fileName)
+    return jsonRaw; // Caso não consiga tratar
+}
+
+private string SaveBase64Pdf(string base64Content, string fileName)
 {
     string saveDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PDFs");
     Directory.CreateDirectory(saveDir);
@@ -246,12 +447,49 @@ public class DatabaseWindowsService : ServiceBase
 
 
 
+private string ExecuteSqlScriptWithParametersExtrato(string resNumber, string window)
+{
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "statement.sql");
 
-    private void Log(string message)
+    if (!File.Exists(sqlScriptPath))
     {
-        string logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "service.log");
-        File.AppendAllText(logFile, $"{DateTime.Now}: {message}{Environment.NewLine}");
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
     }
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+    sqlScript = sqlScript
+        .Replace("{STATEMENT_EXTRACTOCONTA_WEBSERVICE.ResNumber}", resNumber)
+        .Replace("{STATEMENT_EXTRACTOCONTA_WEBSERVICE.window}", window);
+
+    using (SqlConnection connection = new SqlConnection(connectionString))
+    {
+        connection.Open();
+
+        using (SqlCommand command = new SqlCommand(sqlScript, connection))
+        {
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    // Extrai o JSON bruto retornado pela consulta
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        // Limpa a chave extra e obtém apenas o valor do JSON
+                        string cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
+                    }
+                }
+
+                return jsonResult.ToString();
+            }
+        }
+    }
+}
+
+
 
     public static void Main()
     {

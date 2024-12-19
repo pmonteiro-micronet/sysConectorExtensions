@@ -399,3 +399,39 @@ Login failed for user 'NT AUTHORITY\SYSTEM'.
 18/12/2024 13:07:35: HTTP Server started on port 5001
 18/12/2024 13:10:31: Error handling request: 'J' is an invalid start of a value. Path: $ | LineNumber: 0 | BytePositionInLine: 0.
 18/12/2024 16:16:25: Service is stopping...
+18/12/2024 17:42:39: Service is starting...
+18/12/2024 17:42:39: Database connection successful.
+18/12/2024 17:42:39: Service started successfully.
+18/12/2024 17:42:39: HTTP Server started on port 5001
+18/12/2024 17:50:11: Service is stopping...
+18/12/2024 17:50:42: Service is starting...
+18/12/2024 17:50:42: Database connection successful.
+18/12/2024 17:50:42: Service started successfully.
+18/12/2024 17:50:42: HTTP Server started on port 5001. Listening for requests...
+18/12/2024 17:50:55: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=2
+18/12/2024 17:52:40: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=2
+19/12/2024 00:52:34: Service is starting...
+19/12/2024 00:52:35: Database connection successful.
+19/12/2024 00:52:35: Service started successfully.
+19/12/2024 00:52:35: HTTP Server started on port 5001. Listening for requests...
+19/12/2024 00:52:40: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=2
+19/12/2024 00:52:52: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=2
+19/12/2024 00:53:01: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=3
+19/12/2024 00:53:06: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=1
+19/12/2024 00:54:38: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=1
+19/12/2024 00:54:59: Request received: GET http://localhost:5001/pp_xml_ckit_statement?HotelID=1
+19/12/2024 00:55:49: Service is stopping...
+19/12/2024 00:55:49: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+19/12/2024 00:55:49: Service stopped.
+19/12/2024 00:56:03: Service is starting...
+19/12/2024 00:56:03: Database connection successful.
+19/12/2024 00:56:04: Service started successfully.
+19/12/2024 00:56:04: HTTP Server started on port 5001. Listening for requests...
+19/12/2024 01:32:14: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=2
+19/12/2024 01:34:33: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=2
+19/12/2024 01:34:38: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=4
+19/12/2024 01:34:40: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=3
+19/12/2024 01:34:43: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=1
+19/12/2024 01:43:16: Service is stopping...
+19/12/2024 01:43:16: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+19/12/2024 01:43:16: Service stopped.
