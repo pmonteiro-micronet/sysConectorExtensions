@@ -5,6 +5,8 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Data.SqlClient;
+using System.Text.Json;
+
 
 public class DatabaseWindowsService : ServiceBase
 {
@@ -409,14 +411,24 @@ private string CleanJson(string jsonRaw)
     try
     {
         var jsonObject = System.Text.Json.JsonDocument.Parse(jsonRaw).RootElement;
-        
-        // Verifica se é uma única chave (o caso do JSON_F52E2B61-18A1-11d1)
-        if (jsonObject.EnumerateObject().Count() == 1)
+
+        // Verifica o tipo do elemento raiz
+        if (jsonObject.ValueKind == JsonValueKind.Object)
         {
-            foreach (var element in jsonObject.EnumerateObject())
+            // Processar o caso de objeto
+            if (jsonObject.EnumerateObject().Count() == 1)
             {
-                return element.Value.ToString(); // Retorna o valor puro
+                foreach (var element in jsonObject.EnumerateObject())
+                {
+                    return element.Value.ToString();
+                }
             }
+            return jsonObject.ToString(); // Retorna o objeto como está
+        }
+        else if (jsonObject.ValueKind == JsonValueKind.Array)
+        {
+            // Caso seja um array, retorna como string
+            return jsonObject.ToString();
         }
     }
     catch (Exception ex)
@@ -424,8 +436,9 @@ private string CleanJson(string jsonRaw)
         Log($"Erro ao processar JSON: {ex.Message}");
     }
 
-    return jsonRaw; // Caso não consiga tratar
+    return jsonRaw; // Retorna o JSON original em caso de erro
 }
+
 
 private string SaveBase64Pdf(string base64Content, string fileName)
 {
