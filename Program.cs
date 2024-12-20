@@ -261,7 +261,7 @@ public class DatabaseWindowsService : ServiceBase
                 context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
         }
-        else if (urlPath == "/valuesEdited")
+        else if (urlPath == "/valuesedited")
         {
             if (context.Request.HttpMethod == "POST")
             {
