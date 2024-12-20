@@ -1,1 +1,0 @@
-Server=Cokas;Database=protelmprado;Integrated Security=True;MultipleActiveResultSets=True;

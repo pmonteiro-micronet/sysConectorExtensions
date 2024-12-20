@@ -3,14 +3,14 @@ using System.IO;
 using System.Net;
 using System.ServiceProcess;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Data.SqlClient;
-using System.Text.Json;
 
 
 public class DatabaseWindowsService : ServiceBase
 {
-    private static string connectionString;
+    private static ServiceConfig config;
     private HttpListener listener;
     private Thread listenerThread;
 
@@ -28,8 +28,8 @@ public class DatabaseWindowsService : ServiceBase
         {
             Log("Service is starting...");
 
-            // Ler a connection string do arquivo
-            connectionString = ReadConnectionStringFromFile("connectionString.txt");
+            // Carregar configurações do arquivo
+            config = LoadConfiguration("config.json");
 
             // Testar conexão ao banco de dados
             TestDatabaseConnection();
@@ -52,22 +52,32 @@ public class DatabaseWindowsService : ServiceBase
         Log("Service stopped.");
     }
 
-    private static string ReadConnectionStringFromFile(string filePath)
+    private static ServiceConfig LoadConfiguration(string filePath)
+{
+    try
     {
-        try
+        string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+        string jsonContent = File.ReadAllText(absolutePath);
+        ServiceConfig loadedConfig = JsonSerializer.Deserialize<ServiceConfig>(jsonContent);
+
+        // Validar o caminho do PDF
+        if (!Directory.Exists(loadedConfig.PdfSavePath))
         {
-            string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
-            return File.ReadAllText(absolutePath).Trim();
+            throw new Exception($"O caminho para salvar PDFs '{loadedConfig.PdfSavePath}' é inválido ou não existe.");
         }
-        catch (Exception ex)
-        {
-            throw new Exception("Error reading connection string: " + ex.Message);
-        }
+
+        return loadedConfig;
     }
+    catch (Exception ex)
+    {
+        throw new Exception("Error loading configuration: " + ex.Message);
+    }
+}
+
 
     private static void TestDatabaseConnection()
     {
-        using (SqlConnection connection = new SqlConnection(connectionString))
+        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
         {
             connection.Open();
             Log("Database connection successful.");
@@ -81,67 +91,41 @@ public class DatabaseWindowsService : ServiceBase
     }
 
     private void StartHttpServer()
-{
-    try
     {
-        // Ler a porta do arquivo
-        int port = ReadPortFromFile("port.txt");
-
-        listener = new HttpListener();
-
-        // Configurar o prefixo HTTPS usando a porta especificada
-        listener.Prefixes.Add($"http://+:{port}/"); // Escuta em todas as interfaces
-
-        listenerThread = new Thread(() =>
+        try
         {
-            try
-            {
-                listener.Start();
-                Log($"HTTP Server started on port {port}. Listening for requests...");
+            listener = new HttpListener();
 
-                while (listener.IsListening)
+            // Configurar o prefixo HTTPS usando a porta especificada
+            listener.Prefixes.Add($"http://+:{config.ServicePort}/"); // Escuta em todas as interfaces
+
+            listenerThread = new Thread(() =>
+            {
+                try
                 {
-                    var context = listener.GetContext(); // Espera por requisições
-                    ThreadPool.QueueUserWorkItem(_ => HandleRequest(context));
+                    listener.Start();
+                    Log($"HTTP Server started on port {config.ServicePort}. Listening for requests...");
+
+                    while (listener.IsListening)
+                    {
+                        var context = listener.GetContext(); // Espera por requisições
+                        ThreadPool.QueueUserWorkItem(_ => HandleRequest(context));
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Log($"HTTP Server error: {ex.Message}");
-            }
-        });
+                catch (Exception ex)
+                {
+                    Log($"HTTP Server error: {ex.Message}");
+                }
+            });
 
-        listenerThread.IsBackground = true;
-        listenerThread.Start();
-    }
-    catch (Exception ex)
-    {
-        Log($"Error starting HTTP Server: {ex.Message}");
-    }
-}
-
-private static int ReadPortFromFile(string filePath)
-{
-    try
-    {
-        string absolutePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
-        string portString = File.ReadAllText(absolutePath).Trim();
-
-        if (int.TryParse(portString, out int port) && port > 0 && port <= 65535)
-        {
-            return port;
+            listenerThread.IsBackground = true;
+            listenerThread.Start();
         }
-        else
+        catch (Exception ex)
         {
-            throw new Exception("Invalid port number in file.");
+            Log($"Error starting HTTP Server: {ex.Message}");
         }
     }
-    catch (Exception ex)
-    {
-        throw new Exception("Error reading port from file: " + ex.Message);
-    }
-}
-
 
     private void StopHttpServer()
     {
@@ -156,7 +140,6 @@ private static int ReadPortFromFile(string filePath)
             listenerThread.Join();
         }
     }
-
     private void HandleRequest(HttpListenerContext context)
 {
     try
@@ -240,33 +223,110 @@ private static int ReadPortFromFile(string filePath)
                 context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
         }
-        else if (urlPath == "/registration_form_base64" && context.Request.HttpMethod == "POST")
-{
-    // Obter o nome do arquivo do cabeçalho
-    string fileName = context.Request.Headers["FileName"];
-    if (string.IsNullOrEmpty(fileName))
-    {
-        responseMessage = "Cabeçalho 'FileName' é obrigatório.";
-        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-    }
-    else
-    {
-        // Ler o conteúdo do corpo (base64)
-        using (var reader = new StreamReader(context.Request.InputStream))
+        else if (urlPath == "/pp_xml_ckit_statementinhouses")
         {
-            string base64Content = reader.ReadToEnd();
-            if (!string.IsNullOrEmpty(base64Content))
+            // Verificar se o método é GET
+            if (context.Request.HttpMethod == "GET")
             {
-                responseMessage = SaveBase64Pdf(base64Content, fileName);
+                // Obter o parâmetro "HotelID" da query string
+                string hotelID = context.Request.QueryString["HotelID"];
+
+                if (!string.IsNullOrEmpty(hotelID))
+                {
+                    try
+                    {
+                        // Executar o script SQL com o parâmetro HotelID
+                        string jsonResult = ExecuteSqlScriptWithParameterInHouses(hotelID);
+
+                        // Retornar o resultado
+                        responseMessage = jsonResult;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.ContentType = "application/json";
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Erro: Parâmetro 'HotelID' não foi fornecido.";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
             }
             else
             {
-                responseMessage = "O corpo da requisição deve conter o conteúdo base64.";
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                responseMessage = "Método HTTP não suportado nesta rota.";
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
         }
-    }
-}
+        else if (urlPath == "/submit_data")
+        {
+            if (context.Request.HttpMethod == "POST")
+            {
+                try
+                {
+                    // Ler o corpo da requisição
+                    using (var reader = new StreamReader(context.Request.InputStream, Encoding.UTF8))
+                    {
+                        string requestBody = reader.ReadToEnd();
+                        
+                        // Log para verificar os dados recebidos
+                        Log($"Dados recebidos: {requestBody}");
+
+                        // Validar os dados recebidos
+                        if (!string.IsNullOrEmpty(requestBody))
+                        {
+                            responseMessage = "Dados processados com sucesso!";
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        }
+                        else
+                        {
+                            responseMessage = "Erro: Corpo da requisição está vazio.";
+                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    responseMessage = $"Erro ao processar os dados: {ex.Message}";
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                }
+            }
+            else
+            {
+                responseMessage = "Método HTTP não suportado nesta rota.";
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+            }
+        }
+        else if (urlPath == "/registration_form_base64" && context.Request.HttpMethod == "POST")
+        {
+            // Obter o nome do arquivo do cabeçalho
+            string fileName = context.Request.Headers["FileName"];
+            if (string.IsNullOrEmpty(fileName))
+            {
+                responseMessage = "Cabeçalho 'FileName' é obrigatório.";
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                // Ler o conteúdo do corpo (base64)
+                using (var reader = new StreamReader(context.Request.InputStream))
+                {
+                    string base64Content = reader.ReadToEnd();
+                    if (!string.IsNullOrEmpty(base64Content))
+                    {
+                        responseMessage = SaveBase64Pdf(base64Content, fileName);
+                    }
+                    else
+                    {
+                        responseMessage = "O corpo da requisição deve conter o conteúdo base64.";
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    }
+                }
+            }
+        }
         else if (urlPath == "/pp_xml_ckit_extratoconta")
         {
             // Verificar se o método é GET
@@ -340,7 +400,7 @@ private string ExecuteSqlScriptWithParameterCheckouts(string hotelID)
     string sqlScript = File.ReadAllText(sqlScriptPath);
     sqlScript = sqlScript.Replace("{STATEMENT_CHECKOUTS_WEBSERVICE.HotelID}", hotelID);
 
-    using (SqlConnection connection = new SqlConnection(connectionString))
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
         connection.Open();
 
@@ -379,7 +439,46 @@ private string ExecuteSqlScriptWithParameterArrivals(string hotelID)
     string sqlScript = File.ReadAllText(sqlScriptPath);
     sqlScript = sqlScript.Replace("{STATEMENT_CHECKINS_WEBSERVICE.HotelID}", hotelID);
 
-    using (SqlConnection connection = new SqlConnection(connectionString))
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+    {
+        connection.Open();
+
+        using (SqlCommand command = new SqlCommand(sqlScript, connection))
+        {
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        // Tratar para remover a chave JSON desnecessária
+                        var cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
+                    }
+                }
+
+                return jsonResult.ToString();
+            }
+        }
+    }
+}
+
+private string ExecuteSqlScriptWithParameterInHouses(string hotelID)
+{
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "inHousesTodayTomorrow.sql");
+
+    if (!File.Exists(sqlScriptPath))
+    {
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+    }
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+    sqlScript = sqlScript.Replace("{STATEMENT_INHOUSES_WEBSERVICE.HotelID}", hotelID);
+
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
         connection.Open();
 
@@ -442,8 +541,7 @@ private string CleanJson(string jsonRaw)
 
 private string SaveBase64Pdf(string base64Content, string fileName)
 {
-    string saveDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "PDFs");
-    Directory.CreateDirectory(saveDir);
+    string saveDir = config.PdfSavePath; // Usar o caminho especificado na configuração
 
     // Verificar e garantir que o nome do arquivo tenha a extensão .pdf
     if (!fileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
@@ -457,6 +555,7 @@ private string SaveBase64Pdf(string base64Content, string fileName)
     Log($"PDF saved at {filePath}");
     return filePath;
 }
+
 
 
 
@@ -474,7 +573,7 @@ private string ExecuteSqlScriptWithParametersExtrato(string resNumber, string wi
         .Replace("{STATEMENT_EXTRACTOCONTA_WEBSERVICE.ResNumber}", resNumber)
         .Replace("{STATEMENT_EXTRACTOCONTA_WEBSERVICE.window}", window);
 
-    using (SqlConnection connection = new SqlConnection(connectionString))
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
         connection.Open();
 
@@ -508,4 +607,12 @@ private string ExecuteSqlScriptWithParametersExtrato(string resNumber, string wi
     {
         ServiceBase.Run(new DatabaseWindowsService());
     }
+}
+
+// Classe para armazenar configurações
+public class ServiceConfig
+{
+    public string ConnectionString { get; set; }
+    public int ServicePort { get; set; }
+    public string PdfSavePath { get; set; } // Novo campo para caminho do PDF
 }

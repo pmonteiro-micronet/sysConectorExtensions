@@ -1,0 +1,5 @@
+{
+    "ConnectionString": "Server=Cokas;Database=protelmprado;User id=Cokas\\cokas;Integrated Security=True;MultipleActiveResultSets=True;",
+    "ServicePort": 5001,
+    "PdfSavePath": "C:\\ExistingFolder\\PDFs"
+}
