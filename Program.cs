@@ -4,6 +4,7 @@ using System.Net;
 using System.ServiceProcess;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Data.SqlClient;
 
@@ -327,6 +328,43 @@ public class DatabaseWindowsService : ServiceBase
                 }
             }
         }
+        else if (urlPath == "/searchrecordid")
+        {
+            if (context.Request.HttpMethod == "GET")
+            {
+                // Obter o parâmetro "BuchID" da query string
+                string buchID = context.Request.QueryString["BuchID"];
+
+                if (!string.IsNullOrEmpty(buchID))
+                {
+                    try
+                    {
+                        // Executar o script SQL com o parâmetro BuchID
+                        string jsonResult = ExecuteSqlScriptWithParameterSearchRecord(buchID);
+
+                        // Retornar o resultado
+                        responseMessage = jsonResult;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.ContentType = "application/json";
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Erro: Parâmetro 'BuchID' não foi fornecido.";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                }
+            }
+            else
+            {
+                responseMessage = "Método HTTP não suportado nesta rota.";
+                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+            }
+        }
         else if (urlPath == "/pp_xml_ckit_extratoconta")
         {
             // Verificar se o método é GET
@@ -466,6 +504,45 @@ private string ExecuteSqlScriptWithParameterArrivals(string hotelID)
     }
 }
 
+private string ExecuteSqlScriptWithParameterSearchRecord(string buchID)
+{
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "searchID.sql");
+
+    if (!File.Exists(sqlScriptPath))
+    {
+        throw new FileNotFoundException("O arquivo SQL 'searchID.sql' não foi encontrado.");
+    }
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+    sqlScript = sqlScript.Replace("{STATEMENT_INHOUSES_WEBSERVICE.RecordID}", buchID);
+
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+    {
+        connection.Open();
+
+        using (SqlCommand command = new SqlCommand(sqlScript, connection))
+        {
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        // Limpa e processa o JSON retornado
+                        string cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
+                    }
+                }
+
+                return jsonResult.ToString();
+            }
+        }
+    }
+}
+
 private string ExecuteSqlScriptWithParameterInHouses(string hotelID)
 {
     string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "inHousesTodayTomorrow.sql");
@@ -551,12 +628,62 @@ private string SaveBase64Pdf(string base64Content, string fileName)
 
     string filePath = Path.Combine(saveDir, fileName);
 
+    // Salvar o arquivo PDF
     File.WriteAllBytes(filePath, Convert.FromBase64String(base64Content));
-    Log($"PDF saved at {filePath}");
+
+    // Extrair o profileID do nome do arquivo
+    string profileID = ExtractProfileID(fileName);
+
+    // Log com o profileID
+    Log($"PDF saved at {filePath} | Profile ID: {profileID}");
+
+    // Fazer a requisição GET para o endereço especificado
+    SendPathToEndpoint(profileID, filePath);
+
     return filePath;
 }
 
+// Método para extrair o profileID
+private string ExtractProfileID(string fileName)
+{
+    // Usar expressão regular para encontrar a sequência de números no formato esperado
+    var match = Regex.Match(fileName, @"RegistrationForm_profileID_(\d+)");
+    if (match.Success)
+    {
+        return match.Groups[1].Value; // Retorna apenas o número
+    }
+    return "Unknown"; // Retorno padrão caso o formato não seja encontrado
+}
 
+// Método para enviar a requisição GET
+private void SendPathToEndpoint(string profileID, string filePath)
+{
+    try
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            // Montar o URL
+            string url = $"http://192.168.145.5:91/pp_xml_ckit_registrationform?GuestID={profileID}&FilePath={Uri.EscapeDataString(filePath)}";
+
+            // Fazer a requisição GET
+            HttpResponseMessage response = client.GetAsync(url).Result;
+
+            // Validar a resposta
+            if (response.IsSuccessStatusCode)
+            {
+                Log($"Request successful for Profile ID: {profileID}. Response: {response.StatusCode}");
+            }
+            else
+            {
+                Log($"Request failed for Profile ID: {profileID}. Response: {response.StatusCode}");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Log($"Error during GET request: {ex.Message}");
+    }
+}
 
 
 private string ExecuteSqlScriptWithParametersExtrato(string resNumber, string window)

@@ -32,3 +32,83 @@
 20/12/2024 15:20:58: Service is stopping...
 20/12/2024 15:20:58: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
 20/12/2024 15:20:58: Service stopped.
+27/12/2024 12:48:34: Service is starting...
+27/12/2024 12:48:34: Database connection successful.
+27/12/2024 12:48:34: Service started successfully.
+27/12/2024 12:48:34: HTTP Server started on port 5001. Listening for requests...
+27/12/2024 12:49:54: Request received: GET http://localhost:5001/searchrecordid
+27/12/2024 12:51:05: Request received: GET http://localhost:5001/searchrecordid?BuchID=5
+27/12/2024 12:52:06: Request received: GET http://localhost:5001/searchrecordid?BuchID=5
+27/12/2024 13:04:13: Request received: GET http://localhost:5001/searchrecordid?BuchID=752
+27/12/2024 13:04:32: Request received: GET http://localhost:5001/searchrecordid?BuchID=7542
+27/12/2024 13:05:10: Request received: GET http://localhost:5001/searchrecordid?BuchID=67
+27/12/2024 13:05:16: Request received: GET http://localhost:5001/searchrecordid?BuchID=6786
+27/12/2024 13:05:27: Request received: GET http://localhost:5001/searchrecordid?BuchID=2345
+27/12/2024 13:05:35: Request received: GET http://localhost:5001/searchrecordid?BuchID=985
+27/12/2024 13:05:46: Request received: GET http://localhost:5001/searchrecordid?BuchID=5829
+27/12/2024 13:05:50: Request received: GET http://localhost:5001/searchrecordid?BuchID=5822
+27/12/2024 13:05:55: Request received: GET http://localhost:5001/searchrecordid?BuchID=94164
+27/12/2024 13:05:58: Request received: GET http://localhost:5001/searchrecordid?BuchID=9416
+27/12/2024 13:06:01: Request received: GET http://localhost:5001/searchrecordid?BuchID=3587
+27/12/2024 13:06:03: Request received: GET http://localhost:5001/searchrecordid?BuchID=35834
+27/12/2024 14:16:38: Request received: GET http://localhost:5001/searchrecordid?BuchID=35834
+27/12/2024 14:46:35: Request received: GET http://localhost:5001/searchrecordid?BuchID=35834
+27/12/2024 14:50:17: Service is stopping...
+27/12/2024 14:50:17: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/12/2024 14:50:17: Service stopped.
+27/12/2024 15:49:24: Service is starting...
+27/12/2024 15:49:24: Database connection successful.
+27/12/2024 15:49:24: Service started successfully.
+27/12/2024 15:49:24: HTTP Server started on port 5001. Listening for requests...
+27/12/2024 15:49:27: Request received: GET http://localhost:5001/searchrecordid?BuchID=35836
+27/12/2024 15:49:43: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckins?HotelID=2
+27/12/2024 15:49:55: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=2
+27/12/2024 15:50:00: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=1
+27/12/2024 15:50:03: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=3
+27/12/2024 15:50:06: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=4
+27/12/2024 15:50:12: Request received: GET http://localhost:5001/pp_xml_ckit_statementcheckouts?HotelID=5
+27/12/2024 15:50:28: Request received: GET http://localhost:5001/pp_xml_ckit_statementinhouses?HotelID=2
+27/12/2024 15:50:32: Erro ao processar JSON: Expected end of string, but instead reached end of data. LineNumber: 0 | BytePositionInLine: 2045.
+27/12/2024 15:50:32: Erro ao processar JSON: 's' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0.
+27/12/2024 15:50:32: Erro ao processar JSON: 'o' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0.
+27/12/2024 15:50:32: Erro ao processar JSON: ',' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0.
+27/12/2024 15:50:32: Erro ao processar JSON: ':' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0.
+27/12/2024 15:50:32: Request received: GET http://localhost:5001/pp_xml_ckit_statementinhouses?HotelID=1
+27/12/2024 16:03:52: Service is stopping...
+27/12/2024 16:03:52: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/12/2024 16:03:52: Service stopped.
+27/12/2024 16:51:14: Service is starting...
+27/12/2024 16:51:14: Database connection successful.
+27/12/2024 16:51:14: Service started successfully.
+27/12/2024 16:51:14: HTTP Server started on port 5001. Listening for requests...
+27/12/2024 16:51:17: Request received: GET http://localhost:5001/searchrecordid?BuchID=35836
+27/12/2024 16:51:31: Request received: GET http://localhost:5001/searchrecordid?BuchID=35835
+27/12/2024 16:52:02: Service is stopping...
+27/12/2024 16:52:02: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+27/12/2024 16:52:02: Service stopped.
+30/12/2024 14:33:56: Service is starting...
+30/12/2024 14:33:56: Database connection successful.
+30/12/2024 14:33:56: Service started successfully.
+30/12/2024 14:33:56: HTTP Server started on port 5001. Listening for requests...
+30/12/2024 14:34:25: Request received: GET http://localhost:5001/searchrecordid?BuchID=35836
+30/12/2024 14:34:33: Request received: GET http://localhost:5001/searchrecordid?BuchID=3585
+30/12/2024 14:34:41: Request received: GET http://localhost:5001/searchrecordid
+30/12/2024 14:35:49: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\teste.pdf
+30/12/2024 14:35:49: Request received: POST http://localhost:5001/registration_form_base64
+30/12/2024 15:02:07: Request received: GET http://localhost:5001/searchrecordid?buchID=3585
+30/12/2024 15:02:18: Request received: GET http://localhost:5001/searchrecordid?buchid=3585
+30/12/2024 15:02:31: Request received: GET http://localhost:5001/searchrecordid?buchid=35836
+30/12/2024 16:57:47: Service is stopping...
+30/12/2024 16:57:47: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+30/12/2024 16:57:47: Service stopped.
+30/12/2024 16:58:51: Service is starting...
+30/12/2024 16:58:51: Database connection successful.
+30/12/2024 16:58:51: Service started successfully.
+30/12/2024 16:58:51: HTTP Server started on port 5001. Listening for requests...
+30/12/2024 17:00:02: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\teste.pdf | Profile ID: Unknown
+30/12/2024 17:00:02: Request received: POST http://localhost:5001/registration_form_base64
+30/12/2024 17:00:34: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\RegistrationForm_profileID_43984.pdf | Profile ID: 43984
+30/12/2024 17:00:34: Request received: POST http://localhost:5001/registration_form_base64
+30/12/2024 17:33:19: Service is stopping...
+30/12/2024 17:33:19: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+30/12/2024 17:33:19: Service stopped.

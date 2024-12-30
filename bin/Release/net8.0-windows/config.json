@@ -1,5 +1,5 @@
 {
     "ConnectionString": "Server=Cokas;Database=protelmprado;User id=Cokas\\cokas;Integrated Security=True;MultipleActiveResultSets=True;",
     "ServicePort": 5001,
-    "PdfSavePath": "C:\\Users\\cokas\\Desktop\\sysConectorExtensions\\bin\\Release\\net8.0-windows"
+    "PdfSavePath": "C:\\Users\\cokas\\Desktop\\sysConectorExtensions"
 }
