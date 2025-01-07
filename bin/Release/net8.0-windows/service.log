@@ -112,3 +112,73 @@
 30/12/2024 17:33:19: Service is stopping...
 30/12/2024 17:33:19: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
 30/12/2024 17:33:19: Service stopped.
+03/01/2025 16:27:02: Service is starting...
+03/01/2025 16:27:03: Database connection successful.
+03/01/2025 16:27:03: Service started successfully.
+03/01/2025 16:27:03: HTTP Server started on port 5001. Listening for requests...
+03/01/2025 16:27:14: Request received: GET http://localhost:5001/valuesedited
+03/01/2025 16:27:21: Dados recebidos: 
+03/01/2025 16:27:21: Request received: POST http://localhost:5001/valuesedited
+03/01/2025 18:26:31: Service is stopping...
+03/01/2025 18:26:31: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+03/01/2025 18:26:31: Service stopped.
+03/01/2025 18:26:41: Service is starting...
+03/01/2025 18:26:42: Database connection successful.
+03/01/2025 18:26:42: Service started successfully.
+03/01/2025 18:26:42: HTTP Server started on port 5001. Listening for requests...
+03/01/2025 18:26:49: Dados recebidos: 
+03/01/2025 18:26:49: Request received: POST http://localhost:5001/valuesedited
+03/01/2025 18:27:26: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+03/01/2025 18:27:26: Request received: POST http://localhost:5001/valuesedited
+03/01/2025 19:48:34: Service is stopping...
+03/01/2025 19:48:34: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+03/01/2025 19:48:34: Service stopped.
+06/01/2025 09:54:13: Service is starting...
+06/01/2025 09:54:13: Database connection successful.
+06/01/2025 09:54:13: Service started successfully.
+06/01/2025 09:54:13: HTTP Server started on port 5001. Listening for requests...
+06/01/2025 09:54:41: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 09:54:41: Executando SQL: C:\Users\cokas\Desktop\sysConectorExtensions\bin\Release\net8.0-windows\SQLScripts\updateEmailVat.sql
+06/01/2025 09:54:41: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 09:55:30: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 09:55:30: Executando SQL: C:\Users\cokas\Desktop\sysConectorExtensions\bin\Release\net8.0-windows\SQLScripts\updateEmailVat.sql
+06/01/2025 09:55:30: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 09:57:11: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 09:57:11: Executando SQL: C:\Users\cokas\Desktop\sysConectorExtensions\bin\Release\net8.0-windows\SQLScripts\updateEmailVat.sql
+06/01/2025 09:57:11: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 10:02:55: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 10:02:55: Executando SQL: C:\Users\cokas\Desktop\sysConectorExtensions\bin\Release\net8.0-windows\SQLScripts\updateEmailVat.sql
+06/01/2025 10:02:55: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 10:31:41: Dados recebidos: 
+06/01/2025 10:31:41: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 11:05:55: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 11:05:55: Executando SQL: C:\Users\cokas\Desktop\sysConectorExtensions\bin\Release\net8.0-windows\SQLScripts\updateEmailVat.sql
+06/01/2025 11:05:55: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 11:07:33: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 11:07:33: Executando SQL: C:\Users\cokas\Desktop\sysConectorExtensions\bin\Release\net8.0-windows\SQLScripts\updateEmailVat.sql
+06/01/2025 11:07:33: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 11:30:38: Service is stopping...
+06/01/2025 11:30:38: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+06/01/2025 11:30:38: Service stopped.
+06/01/2025 11:31:47: Service is starting...
+06/01/2025 11:31:47: Database connection successful.
+06/01/2025 11:31:47: Service started successfully.
+06/01/2025 11:31:47: HTTP Server started on port 5001. Listening for requests...
+06/01/2025 11:31:52: Dados recebidos: {"registerID": "12345", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 11:31:52: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 11:32:50: Dados recebidos: {"registerID": "3", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 11:32:50: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 14:48:57: Dados recebidos: {"registerID": "3", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+06/01/2025 14:48:57: Request received: POST http://localhost:5001/valuesedited
+06/01/2025 17:45:16: Dados recebidos: {"registerID": "3", "editedEmail": "novoemail@example.com"}
+06/01/2025 17:45:16: Request received: POST http://localhost:5001/valuesedited
+07/01/2025 10:09:10: Service is starting...
+07/01/2025 10:09:11: Database connection successful.
+07/01/2025 10:09:11: Service started successfully.
+07/01/2025 10:09:11: HTTP Server started on port 5001. Listening for requests...
+07/01/2025 10:09:13: Dados recebidos: {"registerID": "4", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+07/01/2025 10:09:14: Request received: POST http://localhost:5001/valuesedited
+07/01/2025 10:09:23: Dados recebidos: {"registerID": "5", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+07/01/2025 10:09:23: Request received: POST http://localhost:5001/valuesedited
+07/01/2025 10:10:47: Dados recebidos: {"registerID": "6", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
+07/01/2025 10:10:48: Request received: POST http://localhost:5001/valuesedited

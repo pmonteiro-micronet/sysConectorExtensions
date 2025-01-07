@@ -263,44 +263,75 @@ public class DatabaseWindowsService : ServiceBase
             }
         }
         else if (urlPath == "/valuesedited")
+{
+    if (context.Request.HttpMethod == "POST")
+    {
+        try
         {
-            if (context.Request.HttpMethod == "POST")
+            // Ler o corpo da requisição
+            using (var reader = new StreamReader(context.Request.InputStream, Encoding.UTF8))
             {
-                try
-                {
-                    // Ler o corpo da requisição
-                    using (var reader = new StreamReader(context.Request.InputStream, Encoding.UTF8))
-                    {
-                        string requestBody = reader.ReadToEnd();
-                        
-                        // Log para verificar os dados recebidos
-                        Log($"Dados recebidos: {requestBody}");
+                string requestBody = reader.ReadToEnd();
 
-                        // Validar os dados recebidos
-                        if (!string.IsNullOrEmpty(requestBody))
-                        {
-                            responseMessage = "Dados processados com sucesso!";
-                            context.Response.StatusCode = (int)HttpStatusCode.OK;
-                        }
-                        else
-                        {
-                            responseMessage = "Erro: Corpo da requisição está vazio.";
-                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        }
+                // Log para verificar os dados recebidos
+                Log($"Dados recebidos: {requestBody}");
+
+                // Deserializar o JSON recebido
+                var requestData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(requestBody);
+
+
+                if (requestData != null && 
+                    requestData.ContainsKey("registerID") && 
+                    requestData.ContainsKey("editedEmail") && 
+                    requestData.ContainsKey("editedVAT"))
+                {
+                    string registerID = requestData["registerID"];
+                    string editedEmail = requestData["editedEmail"];
+                    string editedVAT = requestData["editedVAT"];
+
+                    // Validar os parâmetros recebidos
+                    if (!string.IsNullOrEmpty(registerID) && 
+                        !string.IsNullOrEmpty(editedEmail) && 
+                        !string.IsNullOrEmpty(editedVAT))
+                    {
+                        // Carregar o script SQL do arquivo
+                        string sqlTemplate = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "updateEmailVat.sql");
+
+// Chamada correta usando os parâmetros
+var result = ExecuteSqlToUpdateEmailVAT(sqlTemplate, registerID, editedEmail, editedVAT);
+
+
+
+                        // Retornar sucesso com os dados atualizados
+                        responseMessage = System.Text.Json.JsonSerializer.Serialize(result);
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    }
+                    else
+                    {
+                        responseMessage = "Erro: Parâmetros inválidos ou vazios.";
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    responseMessage = $"Erro ao processar os dados: {ex.Message}";
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    responseMessage = "Erro: Parâmetros ausentes no corpo da requisição.";
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 }
             }
-            else
-            {
-                responseMessage = "Método HTTP não suportado nesta rota.";
-                context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            }
         }
+        catch (Exception ex)
+        {
+            responseMessage = $"Erro ao processar os dados: {ex.Message}";
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        }
+    }
+    else
+    {
+        responseMessage = "Método HTTP não suportado nesta rota.";
+        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+    }
+}
+
         else if (urlPath == "/registration_form_base64" && context.Request.HttpMethod == "POST")
         {
             // Obter o nome do arquivo do cabeçalho
@@ -684,6 +715,44 @@ private void SendPathToEndpoint(string profileID, string filePath)
         Log($"Error during GET request: {ex.Message}");
     }
 }
+
+private string ExecuteSqlToUpdateEmailVAT(string sqlTemplatePath, string registerID, string editedEmail, string editedVAT)
+{
+    // Carrega o script SQL do arquivo
+    string sqlScript = File.ReadAllText(sqlTemplatePath);
+
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+    {
+        connection.Open();
+
+        using (SqlCommand command = new SqlCommand(sqlScript, connection))
+        {
+            // Adiciona os parâmetros
+            command.Parameters.AddWithValue("@RegisterID", registerID);
+            command.Parameters.AddWithValue("@EditedEmail", editedEmail);
+            command.Parameters.AddWithValue("@EditedVAT", editedVAT);
+
+            // Executa o comando e lê o resultado
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        jsonResult.Append(CleanJson(jsonRaw));
+                    }
+                }
+
+                return jsonResult.ToString();
+            }
+        }
+    }
+}
+
+
 
 
 private string ExecuteSqlScriptWithParametersExtrato(string resNumber, string window)
