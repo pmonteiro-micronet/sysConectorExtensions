@@ -182,3 +182,21 @@
 07/01/2025 10:09:23: Request received: POST http://localhost:5001/valuesedited
 07/01/2025 10:10:47: Dados recebidos: {"registerID": "6", "editedEmail": "novoemail@example.com", "editedVAT": "PT123456789"}
 07/01/2025 10:10:48: Request received: POST http://localhost:5001/valuesedited
+07/01/2025 12:17:43: Dados recebidos: {"registerID": "6", "editedVAT": "PT123456789", "editedEmail": "novoemail@example.com"}
+07/01/2025 12:17:43: Request received: POST http://localhost:5001/valuesedited
+07/01/2025 15:31:02: Request received: POST http://localhost:5001/registration_form_base64
+07/01/2025 15:31:45: Error handling request: The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.
+07/01/2025 15:33:09: Request received: POST http://localhost:5001/registration_form_base64
+07/01/2025 15:34:09: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\RegistrationForm_ProfileID_6.pdf | Profile ID: Unknown
+07/01/2025 15:34:42: Error during GET request: One or more errors occurred. (An error occurred while sending the request.)
+07/01/2025 15:34:42: Request received: POST http://localhost:5001/registration_form_base64
+07/01/2025 15:39:53: Service is stopping...
+07/01/2025 15:39:53: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+07/01/2025 15:39:53: Service stopped.
+07/01/2025 15:40:28: Service is starting...
+07/01/2025 15:40:29: Database connection successful.
+07/01/2025 15:40:29: Service started successfully.
+07/01/2025 15:40:29: HTTP Server started on port 5001. Listening for requests...
+07/01/2025 15:40:35: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\RegistrationForm_ProfileID_6.pdf | Profile ID: 6
+07/01/2025 15:40:35: Request successful for Profile ID: 6. Response: OK
+07/01/2025 15:40:35: Request received: POST http://localhost:5001/registration_form_base64

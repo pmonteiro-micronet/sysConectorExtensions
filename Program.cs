@@ -678,7 +678,7 @@ private string SaveBase64Pdf(string base64Content, string fileName)
 private string ExtractProfileID(string fileName)
 {
     // Usar expressão regular para encontrar a sequência de números no formato esperado
-    var match = Regex.Match(fileName, @"RegistrationForm_profileID_(\d+)");
+    var match = Regex.Match(fileName, @"RegistrationForm_ProfileID_(\d+)");
     if (match.Success)
     {
         return match.Groups[1].Value; // Retorna apenas o número
