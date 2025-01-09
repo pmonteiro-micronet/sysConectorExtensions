@@ -373,10 +373,20 @@ var result = ExecuteSqlToUpdateEmailVAT(sqlTemplate, registerID, editedEmail, ed
                         // Executar o script SQL com o parâmetro BuchID
                         string jsonResult = ExecuteSqlScriptWithParameterSearchRecord(buchID);
 
-                        // Retornar o resultado
-                        responseMessage = jsonResult;
-                        context.Response.StatusCode = (int)HttpStatusCode.OK;
-                        context.Response.ContentType = "application/json";
+                        // Fazer POST para o endpoint /api/submitReservation
+                        bool postSuccess = PostToSubmitReservation(jsonResult);
+
+                        if (postSuccess)
+                        {
+                            responseMessage = jsonResult;
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                            context.Response.ContentType = "application/json";
+                        }
+                        else
+                        {
+                            responseMessage = "Erro ao enviar os dados para o endpoint de reserva.";
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -456,6 +466,40 @@ var result = ExecuteSqlToUpdateEmailVAT(sqlTemplate, registerID, editedEmail, ed
     }
 }
 
+private bool PostToSubmitReservation(string jsonData)
+{
+    try
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            // Configurar o URL do endpoint
+            string url = "https://extensions.mypms.pt/api/submitReservation";
+
+            // Criar o conteúdo da requisição
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            // Enviar a requisição POST
+            HttpResponseMessage response = client.PostAsync(url, content).Result;
+
+            // Verificar o status da resposta
+            if (response.IsSuccessStatusCode)
+            {
+                Log("POST para /api/submitReservation enviado com sucesso.");
+                return true;
+            }
+            else
+            {
+                Log($"Erro no POST para /api/submitReservation: {response.StatusCode}");
+                return false;
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Log($"Erro ao enviar POST para /api/submitReservation: {ex.Message}");
+        return false;
+    }
+}
 
 private string ExecuteSqlScriptWithParameterCheckouts(string hotelID)
 {
