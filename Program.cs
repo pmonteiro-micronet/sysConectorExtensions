@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Data.SqlClient;
-
+using System.IO.Compression;
 
 public class DatabaseWindowsService : ServiceBase
 {
@@ -703,19 +703,40 @@ private string SaveBase64Pdf(string base64Content, string fileName)
 
     string filePath = Path.Combine(saveDir, fileName);
 
-    // Salvar o arquivo PDF
-    File.WriteAllBytes(filePath, Convert.FromBase64String(base64Content));
+    try
+    {
+        // Converter a string Base64 para um array de bytes
+        byte[] compressedBytes = Convert.FromBase64String(base64Content);
 
-    // Extrair o profileID do nome do arquivo
-    string profileID = ExtractProfileID(fileName);
+        // Descomprimir os bytes usando GZipStream
+        byte[] decompressedBytes;
+        using (MemoryStream compressedStream = new MemoryStream(compressedBytes))
+        using (GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Decompress))
+        using (MemoryStream decompressedStream = new MemoryStream())
+        {
+            gzipStream.CopyTo(decompressedStream);
+            decompressedBytes = decompressedStream.ToArray();
+        }
 
-    // Log com o profileID
-    Log($"PDF saved at {filePath} | Profile ID: {profileID}");
+        // Salvar os bytes descomprimidos como um arquivo PDF
+        File.WriteAllBytes(filePath, decompressedBytes);
 
-    // Fazer a requisição GET para o endereço especificado
-    SendPathToEndpoint(profileID, filePath);
+        // Extrair o profileID do nome do arquivo
+        string profileID = ExtractProfileID(fileName);
 
-    return filePath;
+        // Log com o profileID
+        Log($"PDF saved at {filePath} | Profile ID: {profileID}");
+
+        // Fazer a requisição GET para o endereço especificado
+        SendPathToEndpoint(profileID, filePath);
+
+        return filePath;
+    }
+    catch (Exception ex)
+    {
+        Log($"Erro ao salvar PDF: {ex.Message}");
+        throw;
+    }
 }
 
 // Método para extrair o profileID
