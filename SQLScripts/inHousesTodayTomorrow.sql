@@ -1,4 +1,5 @@
 select 
+    proteluser.buch.buchnr as 'ResNo',
     cast(proteluser.buch.datumvon as date) as 'DateCI',
     cast(proteluser.buch.datumbis as date) as 'DateCO',
     proteluser.kunden.name1 as 'LastName',

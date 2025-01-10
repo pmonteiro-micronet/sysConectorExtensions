@@ -721,14 +721,15 @@ private string SaveBase64Pdf(string base64Content, string fileName)
 // Método para extrair o profileID
 private string ExtractProfileID(string fileName)
 {
-    // Usar expressão regular para encontrar a sequência de números no formato esperado
-    var match = Regex.Match(fileName, @"RegistrationForm_ProfileID_(\d+)");
+    // Adjust the regular expression to match the new format
+    var match = Regex.Match(fileName, @"RegistrationForm_.*_ProfileID_(\d+)");
     if (match.Success)
     {
-        return match.Groups[1].Value; // Retorna apenas o número
+        return match.Groups[1].Value; // Returns only the ProfileID number
     }
-    return "Unknown"; // Retorno padrão caso o formato não seja encontrado
+    return "Unknown"; // Default return if the format is not found
 }
+
 
 // Método para enviar a requisição GET
 private void SendPathToEndpoint(string profileID, string filePath)
