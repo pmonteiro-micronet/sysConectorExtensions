@@ -406,6 +406,36 @@ var result = ExecuteSqlToUpdateEmailVAT(sqlTemplate, registerID, editedEmail, ed
                 context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
         }
+        else if (urlPath == "/healthcheck")
+{
+    if (context.Request.HttpMethod == "GET")
+    {
+        try
+        {
+            // Retornar o status do serviço
+            var healthStatus = new
+            {
+                Status = "Running",
+                Timestamp = DateTime.UtcNow.ToString("o") // Formato ISO 8601
+            };
+
+            // Serializar o status como JSON
+            responseMessage = System.Text.Json.JsonSerializer.Serialize(healthStatus);
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.ContentType = "application/json";
+        }
+        catch (Exception ex)
+        {
+            responseMessage = $"Erro ao verificar o status: {ex.Message}";
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        }
+    }
+    else
+    {
+        responseMessage = "Método HTTP não suportado nesta rota.";
+        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+    }
+}
         else if (urlPath == "/pp_xml_ckit_extratoconta")
         {
             // Verificar se o método é GET
@@ -723,9 +753,11 @@ private string SaveBase64Pdf(string base64Content, string fileName)
 
         // Extrair o profileID do nome do arquivo
         string profileID = ExtractProfileID(fileName);
+        string TC = ExtractTC(fileName);
+        string DPP = ExtractDPP(fileName);
 
         // Log com o profileID
-        Log($"PDF saved at {filePath} | Profile ID: {profileID}");
+    Log($"PDF saved at {filePath} | Profile ID: {profileID} | TC: {TC} | DPP: {DPP}");
 
         // Fazer a requisição GET para o endereço especificado
         SendPathToEndpoint(profileID, filePath);
@@ -742,13 +774,20 @@ private string SaveBase64Pdf(string base64Content, string fileName)
 // Método para extrair o profileID
 private string ExtractProfileID(string fileName)
 {
-    // Adjust the regular expression to match the new format
-    var match = Regex.Match(fileName, @"RegistrationForm_.*_ProfileID_(\d+)");
-    if (match.Success)
-    {
-        return match.Groups[1].Value; // Returns only the ProfileID number
-    }
-    return "Unknown"; // Default return if the format is not found
+    var match = Regex.Match(fileName, @"ProfileID_(\d+)");
+    return match.Success ? match.Groups[1].Value : "Unknown";
+}
+
+private string ExtractTC(string fileName)
+{
+    var match = Regex.Match(fileName, @"_TC_(\d+)");
+    return match.Success ? match.Groups[1].Value : "Unknown";
+}
+
+private string ExtractDPP(string fileName)
+{
+    var match = Regex.Match(fileName, @"_DPP_(\d+)");
+    return match.Success ? match.Groups[1].Value : "Unknown";
 }
 
 

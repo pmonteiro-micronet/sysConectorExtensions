@@ -200,3 +200,60 @@
 07/01/2025 15:40:35: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\RegistrationForm_ProfileID_6.pdf | Profile ID: 6
 07/01/2025 15:40:35: Request successful for Profile ID: 6. Response: OK
 07/01/2025 15:40:35: Request received: POST http://localhost:5001/registration_form_base64
+17/01/2025 15:19:47: Service is starting...
+17/01/2025 15:19:48: Database connection successful.
+17/01/2025 15:19:48: Service started successfully.
+17/01/2025 15:19:48: HTTP Server started on port 5001. Listening for requests...
+17/01/2025 15:21:14: Request received: POST http://localhost:5001/registration_form_base64
+17/01/2025 15:21:21: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:21:21: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:21:59: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:21:59: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:25:28: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:25:28: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:27:52: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:27:52: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:28:22: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:28:22: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:29:43: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:29:43: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:42:23: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:42:23: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:43:01: Erro ao salvar PDF: The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.
+17/01/2025 15:43:01: Error handling request: The input is not a valid Base-64 string as it contains a non-base 64 character, more than two padding characters, or an illegal character among the padding characters.
+17/01/2025 15:43:21: Erro ao salvar PDF: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:43:21: Error handling request: The archive entry was compressed using an unsupported compression method.
+17/01/2025 15:53:54: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\RegistrationForm_ResNo_8617_TC_0_DPP_0_ProfileID_6.pdf | Profile ID: 6 | TC: 0 | DPP: System.Func`2[System.String,System.String]
+17/01/2025 15:53:54: Request successful for Profile ID: 6. Response: OK
+17/01/2025 15:53:54: Request received: POST http://localhost:5001/registration_form_base64
+17/01/2025 15:54:52: Service is stopping...
+17/01/2025 15:54:52: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+17/01/2025 15:54:52: Service stopped.
+17/01/2025 15:55:09: Service is starting...
+17/01/2025 15:55:09: Database connection successful.
+17/01/2025 15:55:09: Service started successfully.
+17/01/2025 15:55:09: HTTP Server started on port 5001. Listening for requests...
+17/01/2025 16:07:41: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\RegistrationForm_ResNo_8617_TC_0_DPP_0_ProfileID_6.pdf | Profile ID: 6 | TC: 0 | DPP: 0
+17/01/2025 16:07:41: Request successful for Profile ID: 6. Response: OK
+17/01/2025 16:07:41: Request received: POST http://localhost:5001/registration_form_base64
+17/01/2025 16:07:57: PDF saved at C:\Users\cokas\Desktop\sysConectorExtensions\RegistrationForm_ResNo_8617_TC_1_DPP_0_ProfileID_6.pdf | Profile ID: 6 | TC: 1 | DPP: 0
+17/01/2025 16:07:57: Request successful for Profile ID: 6. Response: OK
+17/01/2025 16:07:57: Request received: POST http://localhost:5001/registration_form_base64
+17/01/2025 16:32:37: Service is stopping...
+17/01/2025 16:32:37: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+17/01/2025 16:32:37: Service stopped.
+17/01/2025 16:32:51: Service is starting...
+17/01/2025 16:32:51: Database connection successful.
+17/01/2025 16:32:51: Service started successfully.
+17/01/2025 16:32:51: HTTP Server started on port 5001. Listening for requests...
+17/01/2025 16:33:09: Request received: POST http://localhost:5001/healthcheck
+17/01/2025 16:33:16: Request received: GET http://localhost:5001/healthcheck
+17/01/2025 16:33:18: Request received: GET http://localhost:5001/healthcheck
+17/01/2025 16:33:21: Service is stopping...
+17/01/2025 16:33:21: HTTP Server error: A operação de E/S foi cancelada devido a uma saída do módulo ou a um pedido da aplicação.
+17/01/2025 16:33:21: Service stopped.
+17/01/2025 16:34:14: Service is starting...
+17/01/2025 16:34:14: Database connection successful.
+17/01/2025 16:34:14: Service started successfully.
+17/01/2025 16:34:14: HTTP Server started on port 5001. Listening for requests...
+17/01/2025 16:34:17: Request received: GET http://localhost:5001/healthcheck
