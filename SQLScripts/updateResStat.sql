@@ -1,0 +1,1 @@
+update protel.proteluser.buch set buchstatus = 1 where buchnr = '<ReservaID>'
