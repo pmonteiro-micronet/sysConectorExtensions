@@ -32,7 +32,7 @@ public class DatabaseWindowsService : ServiceBase
 
     private bool ValidateToken(HttpListenerContext context)
 {
-    string token = context.Request.Headers["Authorization"];
+        string token = context.Request.Headers["Authorization"];
     return token == "q4vf9p8n4907895f7m8d24m75c2q947m2398c574q9586c490q756c98q4m705imtugcfecvrhym04capwz3e2ewqaefwegfiuoamv4ros2nuyp0sjc3iutow924bn5ry943utrjmi"; // Replace with your actual token validation logic
 }
 
@@ -723,6 +723,37 @@ else if (urlPath == "/updatecheckin")
                 context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
             }
         }
+        else if (urlPath == "/requestregistrationform" && context.Request.HttpMethod == "POST")
+        {
+            try
+            {
+                using (var reader = new StreamReader(context.Request.InputStream, Encoding.UTF8))
+                {
+                    string requestBody = reader.ReadToEnd();
+                    var requestData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(requestBody);
+
+                    if (requestData != null && requestData.ContainsKey("RecordID"))
+                    {
+                        string recordID = requestData["RecordID"];
+                        string result = ExecuteSqlRequestRegistrationForm(recordID);
+
+                        responseMessage = result;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                        context.Response.ContentType = "application/json";
+                    }
+                    else
+                    {
+                        responseMessage = "Erro: Parâmetro 'RecordID' não foi fornecido.";
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                responseMessage = $"Erro ao processar a requisição: {ex.Message}";
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            }
+        }
         else
         {
             responseMessage = "Rota não reconhecida.";
@@ -1034,24 +1065,63 @@ private string ExecuteSqlScriptWithParameterSearchRecord(string buchID)
     }
 }
 
-private string ExecuteSqlScriptWithParameterInHouses(string hotelID)
+    private string ExecuteSqlScriptWithParameterInHouses(string hotelID)
+    {
+        string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "inHousesTodayTomorrow.sql");
+
+        if (!File.Exists(sqlScriptPath))
+        {
+            throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+        }
+
+        string sqlScript = File.ReadAllText(sqlScriptPath);
+        sqlScript = sqlScript.Replace("{STATEMENT_INHOUSES_WEBSERVICE.HotelID}", hotelID);
+
+        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+        {
+            connection.Open();
+
+            using (SqlCommand command = new SqlCommand(sqlScript, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    StringBuilder jsonResult = new StringBuilder();
+
+                    while (reader.Read())
+                    {
+                        string jsonRaw = reader[0]?.ToString();
+                        if (!string.IsNullOrEmpty(jsonRaw))
+                        {
+                            // Tratar para remover a chave JSON desnecessária
+                            var cleanedJson = CleanJson(jsonRaw);
+                            jsonResult.Append(cleanedJson);
+                        }
+                    }
+
+                    return jsonResult.ToString();
+                }
+            }
+        }
+    }
+
+private string ExecuteSqlRequestRegistrationForm(string recordID)
 {
-    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "inHousesTodayTomorrow.sql");
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "RequestRegistrationForm.sql");
 
     if (!File.Exists(sqlScriptPath))
     {
-        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+        throw new FileNotFoundException("O arquivo SQL 'RequestRegistrationForm.sql' não foi encontrado.");
     }
 
     string sqlScript = File.ReadAllText(sqlScriptPath);
-    sqlScript = sqlScript.Replace("{STATEMENT_INHOUSES_WEBSERVICE.HotelID}", hotelID);
 
     using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
         connection.Open();
-
         using (SqlCommand command = new SqlCommand(sqlScript, connection))
         {
+            command.Parameters.AddWithValue("@RecordID", recordID);
+
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 StringBuilder jsonResult = new StringBuilder();
@@ -1061,9 +1131,7 @@ private string ExecuteSqlScriptWithParameterInHouses(string hotelID)
                     string jsonRaw = reader[0]?.ToString();
                     if (!string.IsNullOrEmpty(jsonRaw))
                     {
-                        // Tratar para remover a chave JSON desnecessária
-                        var cleanedJson = CleanJson(jsonRaw);
-                        jsonResult.Append(cleanedJson);
+                        jsonResult.Append(CleanJson(jsonRaw));
                     }
                 }
 
@@ -1073,38 +1141,38 @@ private string ExecuteSqlScriptWithParameterInHouses(string hotelID)
     }
 }
 
-private string CleanJson(string jsonRaw)
-{
-    try
+    private string CleanJson(string jsonRaw)
     {
-        var jsonObject = System.Text.Json.JsonDocument.Parse(jsonRaw).RootElement;
-
-        // Verifica o tipo do elemento raiz
-        if (jsonObject.ValueKind == JsonValueKind.Object)
+        try
         {
-            // Processar o caso de objeto
-            if (jsonObject.EnumerateObject().Count() == 1)
+            var jsonObject = System.Text.Json.JsonDocument.Parse(jsonRaw).RootElement;
+
+            // Verifica o tipo do elemento raiz
+            if (jsonObject.ValueKind == JsonValueKind.Object)
             {
-                foreach (var element in jsonObject.EnumerateObject())
+                // Processar o caso de objeto
+                if (jsonObject.EnumerateObject().Count() == 1)
                 {
-                    return element.Value.ToString();
+                    foreach (var element in jsonObject.EnumerateObject())
+                    {
+                        return element.Value.ToString();
+                    }
                 }
+                return jsonObject.ToString(); // Retorna o objeto como está
             }
-            return jsonObject.ToString(); // Retorna o objeto como está
+            else if (jsonObject.ValueKind == JsonValueKind.Array)
+            {
+                // Caso seja um array, retorna como string
+                return jsonObject.ToString();
+            }
         }
-        else if (jsonObject.ValueKind == JsonValueKind.Array)
+        catch (Exception ex)
         {
-            // Caso seja um array, retorna como string
-            return jsonObject.ToString();
+            Log($"Erro ao processar JSON: {ex.Message}");
         }
-    }
-    catch (Exception ex)
-    {
-        Log($"Erro ao processar JSON: {ex.Message}");
-    }
 
-    return jsonRaw; // Retorna o JSON original em caso de erro
-}
+        return jsonRaw; // Retorna o JSON original em caso de erro
+    }
 
 
 private string SaveBase64Pdf(string base64Content, string fileName)
