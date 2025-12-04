@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\hitsnorte\\sysConectorExtensions\\statements.csproj": {}
+    "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\statements.csproj": {}
   },
   "projects": {
-    "D:\\hitsnorte\\sysConectorExtensions\\statements.csproj": {
+    "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\statements.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\hitsnorte\\sysConectorExtensions\\statements.csproj",
+        "projectUniqueName": "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\statements.csproj",
         "projectName": "statements",
-        "projectPath": "D:\\hitsnorte\\sysConectorExtensions\\statements.csproj",
-        "packagesPath": "C:\\Users\\scnen\\.nuget\\packages\\",
-        "outputPath": "D:\\hitsnorte\\sysConectorExtensions\\obj\\",
+        "projectPath": "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\statements.csproj",
+        "packagesPath": "C:\\Users\\cokas\\.nuget\\packages\\",
+        "outputPath": "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\scnen\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\cokas\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0-windows"
@@ -70,11 +70,27 @@
           "warn": true,
           "downloadDependencies": [
             {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.12, 8.0.12]"
+            },
+            {
               "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
               "version": "[8.0.12, 8.0.12]"
             },
             {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.12, 8.0.12]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.12, 8.0.12]"
+            },
+            {
               "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[8.0.12, 8.0.12]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
               "version": "[8.0.12, 8.0.12]"
             },
             {
