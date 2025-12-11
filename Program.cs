@@ -2244,10 +2244,16 @@ private string ExecuteSqlToUpdateEmailVAT(string sqlTemplatePath, string registe
         using (SqlCommand command = new SqlCommand(sqlScript, connection))
         {
             // Adiciona os parâmetros
-            command.Parameters.AddWithValue("@EditedEmail", (object)editedEmail ?? DBNull.Value);
-            command.Parameters.AddWithValue("@EditedVAT", (object)editedVAT ?? DBNull.Value);
-            command.Parameters.AddWithValue("@PhoneNumber", (object)phoneNumber ?? DBNull.Value);
-            command.Parameters.AddWithValue("@RegisterID", (object)registerID ?? DBNull.Value);
+            command.Parameters.AddWithValue("@EditedEmail",
+    string.IsNullOrEmpty(editedEmail) ? (object)DBNull.Value : editedEmail);
+
+command.Parameters.AddWithValue("@EditedVAT",
+    string.IsNullOrEmpty(editedVAT) ? (object)DBNull.Value : editedVAT);
+
+command.Parameters.AddWithValue("@PhoneNumber",
+    string.IsNullOrEmpty(phoneNumber) ? (object)DBNull.Value : phoneNumber);
+
+command.Parameters.AddWithValue("@RegisterID", registerID);
  // <-- NOVO
 
             // Executa o comando e lê o resultado
