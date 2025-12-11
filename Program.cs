@@ -417,6 +417,7 @@ public class DatabaseWindowsService : ServiceBase
         try
         {
             // Captura os parâmetros dos headers, definindo " " como padrão para os campos opcionais
+            string mpehotel = context.Request.Headers["mpehotel"];
             string zimmernr = context.Request.Headers["room"];
             string bq = context.Request.Headers["bq"];
             string reason = context.Request.Headers["reason"] ?? " ";
@@ -446,7 +447,7 @@ public class DatabaseWindowsService : ServiceBase
 
             // Executar o script SQL e obter o ID da empresa inserida
             int insertedId = ExecuteSqlScriptInsertMaintenance(
-                zimmernr, bq, reason, text, solved, edate, euser, etime, sdate, suser, stime, orgreason, startdt, startzt,
+                mpehotel, zimmernr, bq, reason, text, solved, edate, euser, etime, sdate, suser, stime, orgreason, startdt, startzt,
                 dauer, tstartdt, tstartzt, tdauer, tkosten, treason, ztext, textlokal, dokument, prio, _del
                 );
 
@@ -1484,46 +1485,59 @@ private int ExecuteSqlScriptInsertCompany(string companyName, string countryID, 
 }
 
 private int ExecuteSqlScriptInsertMaintenance(
-    string zimmernr, string bq, string reason, string text, string solved, string edate, string euser, string etime, string sdate, string suser, string stime, string orgreason, string startdt, string startzt,
-                string dauer, string tstartdt, string tstartzt, string tdauer, string tkosten, string treason, string ztext, string textlokal, string dokument, string prio, string _del
+    string mpehotel, string zimmernr, string bq, string reason, string text, string solved,
+    string edate, string euser, string etime, string sdate, string suser, string stime,
+    string orgreason, string startdt, string startzt, string dauer, string tstartdt,
+    string tstartzt, string tdauer, string tkosten, string treason, string ztext,
+    string textlokal, string dokument, string prio, string _del
 )
 {
     string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "insertMaintenance.sql");
 
     if (!File.Exists(sqlScriptPath))
-    {
         throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
-    }
 
     string sqlScript = File.ReadAllText(sqlScriptPath);
 
-    // Substituir placeholders pelos valores reais
-    sqlScript = sqlScript.Replace("<zimmernr>", zimmernr)
-                         .Replace("<bq>", bq)
-                         .Replace("<reason>", reason)
-                         .Replace("<text>", text)
-                         .Replace("<solved>", solved)
-                         .Replace("<edate>", edate)
-                         .Replace("<euser>", euser)
-                         .Replace("<etime>", etime)
-                         .Replace("<sdate>", sdate)
-                         .Replace("<suser>", suser)
-                         .Replace("<stime>", stime)
-                         .Replace("<orgreason>", orgreason)
-                         .Replace("<startdt>", startdt)
-                         .Replace("<startzt>", startzt)
-                         .Replace("<dauer>", dauer)
-                         .Replace("<tstartdt>", tstartdt)
-                         .Replace("<tstartzt>", tstartzt)
-                         .Replace("<tdauer>", tdauer)
-                         .Replace("<tkosten>", tkosten)
-                         .Replace("<treason>", treason)
-                         .Replace("<ztext>", ztext)
-                         .Replace("<textlokal>", textlokal)
-                         .Replace("<dokument>", dokument)
-                         .Replace("<prio>", prio)
-                         .Replace("<_del>", _del);
+    // STRING → devolve 'texto' ou NULL
+    string Q(string value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? "NULL"
+            : $"'{value.Replace("'", "''")}'";
 
+    // NÚMEROS → devolve número ou NULL
+    string N(string value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? "NULL"
+            : value;
+
+    // Substituir placeholders
+    sqlScript = sqlScript.Replace("<mpehotel>", N(mpehotel))
+                         .Replace("<zimmernr>", N(zimmernr))
+                         .Replace("<bq>", N(bq))
+                         .Replace("<reason>", N(reason))
+                         .Replace("<text>", Q(text))
+                         .Replace("<solved>", N(solved))
+                         .Replace("<edate>", Q(edate))
+                         .Replace("<euser>", Q(euser))
+                         .Replace("<etime>", Q(etime))
+                         .Replace("<sdate>", Q(sdate))
+                         .Replace("<suser>", Q(suser))
+                         .Replace("<stime>", Q(stime))
+                         .Replace("<orgreason>", N(orgreason))
+                         .Replace("<startdt>", Q(startdt))
+                         .Replace("<startzt>", Q(startzt))
+                         .Replace("<dauer>", N(dauer))
+                         .Replace("<tstartdt>", Q(tstartdt))
+                         .Replace("<tstartzt>", Q(tstartzt))
+                         .Replace("<tdauer>", N(tdauer))
+                         .Replace("<tkosten>", N(tkosten))
+                         .Replace("<treason>", N(treason))
+                         .Replace("<ztext>", Q(ztext))
+                         .Replace("<textlokal>", Q(textlokal))
+                         .Replace("<dokument>", Q(dokument))
+                         .Replace("<prio>", N(prio))
+                         .Replace("<_del>", N(_del));
 
     using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
@@ -1531,14 +1545,11 @@ private int ExecuteSqlScriptInsertMaintenance(
         using (SqlCommand command = new SqlCommand(sqlScript, connection))
         {
             object result = command.ExecuteScalar();
+
             if (result != null && int.TryParse(result.ToString(), out int insertedId))
-            {
                 return insertedId;
-            }
-            else
-            {
-                throw new Exception("Falha ao obter o ID do registro inserido.");
-            }
+
+            throw new Exception("Falha ao obter o ID do registro inserido.");
         }
     }
 }
