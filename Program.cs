@@ -381,6 +381,44 @@ public class DatabaseWindowsService : ServiceBase
                     context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 }
             }
+           else if (urlPath == "/gethousekeeping")
+            {
+                // Verificar se o método é GET
+                if (context.Request.HttpMethod == "GET")
+                {
+                    // Obter o parâmetro "HotelID" da query string
+                    string mpehotel = context.Request.QueryString["mpehotel"];
+
+                    if (!string.IsNullOrEmpty(mpehotel))
+                    {
+                        try
+                        {
+                            // Executar o script SQL com o parâmetro HotelID
+                            string jsonResult = ExecuteSqlScriptWithParameterHousekeeping(mpehotel);
+
+                            // Retornar o resultado
+                            responseMessage = jsonResult;
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                            context.Response.ContentType = "application/json";
+                        }
+                        catch (Exception ex)
+                        {
+                            responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        }
+                    }
+                    else
+                    {
+                        responseMessage = "Erro: Parâmetro 'mpehotel' não foi fornecido.";
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Método HTTP não suportado nesta rota.";
+                    context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                }
+            }
 
  else if (urlPath == "/getmaintenancereasons")
             {
@@ -440,7 +478,7 @@ public class DatabaseWindowsService : ServiceBase
             string treason = context.Request.Headers["treason"] ?? " ";
             string ztext = context.Request.Headers["reasonNotes"] ?? " ";
             string textlokal = context.Request.Headers["textlokal"] ?? " ";
-            string dokument = context.Request.Headers["urlImage"] ?? " ";
+            string dokument = context.Request.Headers["dokument"] ?? " ";
             string prio = context.Request.Headers["prio"] ?? " ";
             string _del = context.Request.Headers["_del"] ?? " ";
 
@@ -1499,45 +1537,47 @@ private int ExecuteSqlScriptInsertMaintenance(
 
     string sqlScript = File.ReadAllText(sqlScriptPath);
 
-    // STRING → devolve 'texto' ou NULL
-    string Q(string value) =>
+    // Função para strings → devolve 'texto' ou NULL, com truncamento seguro
+    string Q(string value, int maxLength) =>
         string.IsNullOrWhiteSpace(value)
             ? "NULL"
-            : $"'{value.Replace("'", "''")}'";
+            : $"'{value.Substring(0, Math.Min(value.Length, maxLength)).Replace("'", "''")}'";
 
-    // NÚMEROS → devolve número ou NULL
+    // Função para números → devolve valor ou NULL
     string N(string value) =>
-        string.IsNullOrWhiteSpace(value)
-            ? "NULL"
-            : value;
+        string.IsNullOrWhiteSpace(value) ? "NULL" : value;
 
     // Substituir placeholders
     sqlScript = sqlScript.Replace("<mpehotel>", N(mpehotel))
                          .Replace("<zimmernr>", N(zimmernr))
                          .Replace("<bq>", N(bq))
                          .Replace("<reason>", N(reason))
-                         .Replace("<text>", Q(text))
+                         .Replace("<text>", Q(text, 254))
                          .Replace("<solved>", N(solved))
-                         .Replace("<edate>", Q(edate))
-                         .Replace("<euser>", Q(euser))
-                         .Replace("<etime>", Q(etime))
-                         .Replace("<sdate>", Q(sdate))
-                         .Replace("<suser>", Q(suser))
-                         .Replace("<stime>", Q(stime))
+                         .Replace("<edate>", Q(edate, 50))
+                         .Replace("<euser>", Q(euser, 50))
+                         .Replace("<etime>", Q(etime, 5))
+                         .Replace("<sdate>", Q(sdate, 50))
+                         .Replace("<suser>", Q(suser, 50))
+                         .Replace("<stime>", Q(stime, 5))
                          .Replace("<orgreason>", N(orgreason))
-                         .Replace("<startdt>", Q(startdt))
-                         .Replace("<startzt>", Q(startzt))
+                         .Replace("<startdt>", Q(startdt, 50))
+                         .Replace("<startzt>", Q(startzt, 5))
                          .Replace("<dauer>", N(dauer))
-                         .Replace("<tstartdt>", Q(tstartdt))
-                         .Replace("<tstartzt>", Q(tstartzt))
+                         .Replace("<tstartdt>", Q(tstartdt, 50))
+                         .Replace("<tstartzt>", Q(tstartzt, 5))
                          .Replace("<tdauer>", N(tdauer))
                          .Replace("<tkosten>", N(tkosten))
                          .Replace("<treason>", N(treason))
-                         .Replace("<ztext>", Q(ztext))
-                         .Replace("<textlokal>", Q(textlokal))
-                         .Replace("<dokument>", Q(dokument))
+                         .Replace("<ztext>", Q(ztext, 254))
+                         .Replace("<textlokal>", Q(textlokal, 1000))
+                         .Replace("<dokument>", Q(dokument, 254))
                          .Replace("<prio>", N(prio))
                          .Replace("<_del>", N(_del));
+
+    // 🔹 Gravar SQL final para debug
+    string debugFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_insertMaintenance.sql");
+    File.WriteAllText(debugFile, sqlScript);
 
     using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
@@ -1553,6 +1593,7 @@ private int ExecuteSqlScriptInsertMaintenance(
         }
     }
 }
+
 
 private void ExecuteSqlScriptUpdateCompany(string companyID, string companyName, string countryID, string countryName, string streetAddress, string zipCode, string city, string state, string vatNo, string email, string resNo, string oldCompany)
 {
@@ -1926,6 +1967,45 @@ private string ExecuteSqlScriptWithParameterHousekeepingRooms()
         }
     }
 
+    private string ExecuteSqlScriptWithParameterHousekeeping(string mpehotel)
+    {
+        string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "getHousekeeping.sql");
+
+        if (!File.Exists(sqlScriptPath))
+        {
+            throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+        }
+
+        string sqlScript = File.ReadAllText(sqlScriptPath);
+        sqlScript = sqlScript.Replace("@mpehotel", mpehotel);
+
+        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+        {
+            connection.Open();
+
+            using (SqlCommand command = new SqlCommand(sqlScript, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    StringBuilder jsonResult = new StringBuilder();
+
+                    while (reader.Read())
+                    {
+                        string jsonRaw = reader[0]?.ToString();
+                        if (!string.IsNullOrEmpty(jsonRaw))
+                        {
+                            // Tratar para remover a chave JSON desnecessária
+                            var cleanedJson = CleanJson(jsonRaw);
+                            jsonResult.Append(cleanedJson);
+                        }
+                    }
+
+                    return jsonResult.ToString();
+                }
+            }
+        }
+    }
+
 private string ExecuteSqlScriptWithParameterMaintenanceReasons()
     {
         string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "getMaintenanceReasons.sql");
@@ -2255,10 +2335,16 @@ private string ExecuteSqlToUpdateEmailVAT(string sqlTemplatePath, string registe
         using (SqlCommand command = new SqlCommand(sqlScript, connection))
         {
             // Adiciona os parâmetros
-            command.Parameters.AddWithValue("@EditedEmail", (object)editedEmail ?? DBNull.Value);
-            command.Parameters.AddWithValue("@EditedVAT", (object)editedVAT ?? DBNull.Value);
-            command.Parameters.AddWithValue("@PhoneNumber", (object)phoneNumber ?? DBNull.Value);
-            command.Parameters.AddWithValue("@RegisterID", (object)registerID ?? DBNull.Value);
+            command.Parameters.AddWithValue("@EditedEmail",
+    string.IsNullOrEmpty(editedEmail) ? (object)DBNull.Value : editedEmail);
+
+command.Parameters.AddWithValue("@EditedVAT",
+    string.IsNullOrEmpty(editedVAT) ? (object)DBNull.Value : editedVAT);
+
+command.Parameters.AddWithValue("@PhoneNumber",
+    string.IsNullOrEmpty(phoneNumber) ? (object)DBNull.Value : phoneNumber);
+
+command.Parameters.AddWithValue("@RegisterID", registerID);
  // <-- NOVO
 
             // Executa o comando e lê o resultado
