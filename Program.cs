@@ -381,6 +381,44 @@ public class DatabaseWindowsService : ServiceBase
                     context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 }
             }
+           else if (urlPath == "/gethousekeeping")
+            {
+                // Verificar se o método é GET
+                if (context.Request.HttpMethod == "GET")
+                {
+                    // Obter o parâmetro "HotelID" da query string
+                    string mpehotel = context.Request.QueryString["mpehotel"];
+
+                    if (!string.IsNullOrEmpty(mpehotel))
+                    {
+                        try
+                        {
+                            // Executar o script SQL com o parâmetro HotelID
+                            string jsonResult = ExecuteSqlScriptWithParameterHousekeeping(mpehotel);
+
+                            // Retornar o resultado
+                            responseMessage = jsonResult;
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                            context.Response.ContentType = "application/json";
+                        }
+                        catch (Exception ex)
+                        {
+                            responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        }
+                    }
+                    else
+                    {
+                        responseMessage = "Erro: Parâmetro 'mpehotel' não foi fornecido.";
+                        context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Método HTTP não suportado nesta rota.";
+                    context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                }
+            }
 
  else if (urlPath == "/getmaintenancereasons")
             {
@@ -417,6 +455,7 @@ public class DatabaseWindowsService : ServiceBase
         try
         {
             // Captura os parâmetros dos headers, definindo " " como padrão para os campos opcionais
+            string mpehotel = context.Request.Headers["mpehotel"];
             string zimmernr = context.Request.Headers["room"];
             string bq = context.Request.Headers["bq"];
             string reason = context.Request.Headers["reason"] ?? " ";
@@ -439,14 +478,14 @@ public class DatabaseWindowsService : ServiceBase
             string treason = context.Request.Headers["treason"] ?? " ";
             string ztext = context.Request.Headers["reasonNotes"] ?? " ";
             string textlokal = context.Request.Headers["textlokal"] ?? " ";
-            string dokument = context.Request.Headers["urlImage"] ?? " ";
+            string dokument = context.Request.Headers["dokument"] ?? " ";
             string prio = context.Request.Headers["prio"] ?? " ";
             string _del = context.Request.Headers["_del"] ?? " ";
 
 
             // Executar o script SQL e obter o ID da empresa inserida
             int insertedId = ExecuteSqlScriptInsertMaintenance(
-                zimmernr, bq, reason, text, solved, edate, euser, etime, sdate, suser, stime, orgreason, startdt, startzt,
+                mpehotel, zimmernr, bq, reason, text, solved, edate, euser, etime, sdate, suser, stime, orgreason, startdt, startzt,
                 dauer, tstartdt, tstartzt, tdauer, tkosten, treason, ztext, textlokal, dokument, prio, _del
                 );
 
@@ -1484,46 +1523,61 @@ private int ExecuteSqlScriptInsertCompany(string companyName, string countryID, 
 }
 
 private int ExecuteSqlScriptInsertMaintenance(
-    string zimmernr, string bq, string reason, string text, string solved, string edate, string euser, string etime, string sdate, string suser, string stime, string orgreason, string startdt, string startzt,
-                string dauer, string tstartdt, string tstartzt, string tdauer, string tkosten, string treason, string ztext, string textlokal, string dokument, string prio, string _del
+    string mpehotel, string zimmernr, string bq, string reason, string text, string solved,
+    string edate, string euser, string etime, string sdate, string suser, string stime,
+    string orgreason, string startdt, string startzt, string dauer, string tstartdt,
+    string tstartzt, string tdauer, string tkosten, string treason, string ztext,
+    string textlokal, string dokument, string prio, string _del
 )
 {
     string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "insertMaintenance.sql");
 
     if (!File.Exists(sqlScriptPath))
-    {
         throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
-    }
 
     string sqlScript = File.ReadAllText(sqlScriptPath);
 
-    // Substituir placeholders pelos valores reais
-    sqlScript = sqlScript.Replace("<zimmernr>", zimmernr)
-                         .Replace("<bq>", bq)
-                         .Replace("<reason>", reason)
-                         .Replace("<text>", text)
-                         .Replace("<solved>", solved)
-                         .Replace("<edate>", edate)
-                         .Replace("<euser>", euser)
-                         .Replace("<etime>", etime)
-                         .Replace("<sdate>", sdate)
-                         .Replace("<suser>", suser)
-                         .Replace("<stime>", stime)
-                         .Replace("<orgreason>", orgreason)
-                         .Replace("<startdt>", startdt)
-                         .Replace("<startzt>", startzt)
-                         .Replace("<dauer>", dauer)
-                         .Replace("<tstartdt>", tstartdt)
-                         .Replace("<tstartzt>", tstartzt)
-                         .Replace("<tdauer>", tdauer)
-                         .Replace("<tkosten>", tkosten)
-                         .Replace("<treason>", treason)
-                         .Replace("<ztext>", ztext)
-                         .Replace("<textlokal>", textlokal)
-                         .Replace("<dokument>", dokument)
-                         .Replace("<prio>", prio)
-                         .Replace("<_del>", _del);
+    // Função para strings → devolve 'texto' ou NULL, com truncamento seguro
+    string Q(string value, int maxLength) =>
+        string.IsNullOrWhiteSpace(value)
+            ? "NULL"
+            : $"'{value.Substring(0, Math.Min(value.Length, maxLength)).Replace("'", "''")}'";
 
+    // Função para números → devolve valor ou NULL
+    string N(string value) =>
+        string.IsNullOrWhiteSpace(value) ? "NULL" : value;
+
+    // Substituir placeholders
+    sqlScript = sqlScript.Replace("<mpehotel>", N(mpehotel))
+                         .Replace("<zimmernr>", N(zimmernr))
+                         .Replace("<bq>", N(bq))
+                         .Replace("<reason>", N(reason))
+                         .Replace("<text>", Q(text, 254))
+                         .Replace("<solved>", N(solved))
+                         .Replace("<edate>", Q(edate, 50))
+                         .Replace("<euser>", Q(euser, 50))
+                         .Replace("<etime>", Q(etime, 5))
+                         .Replace("<sdate>", Q(sdate, 50))
+                         .Replace("<suser>", Q(suser, 50))
+                         .Replace("<stime>", Q(stime, 5))
+                         .Replace("<orgreason>", N(orgreason))
+                         .Replace("<startdt>", Q(startdt, 50))
+                         .Replace("<startzt>", Q(startzt, 5))
+                         .Replace("<dauer>", N(dauer))
+                         .Replace("<tstartdt>", Q(tstartdt, 50))
+                         .Replace("<tstartzt>", Q(tstartzt, 5))
+                         .Replace("<tdauer>", N(tdauer))
+                         .Replace("<tkosten>", N(tkosten))
+                         .Replace("<treason>", N(treason))
+                         .Replace("<ztext>", Q(ztext, 254))
+                         .Replace("<textlokal>", Q(textlokal, 1000))
+                         .Replace("<dokument>", Q(dokument, 254))
+                         .Replace("<prio>", N(prio))
+                         .Replace("<_del>", N(_del));
+
+    // 🔹 Gravar SQL final para debug
+    string debugFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_insertMaintenance.sql");
+    File.WriteAllText(debugFile, sqlScript);
 
     using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
@@ -1531,17 +1585,15 @@ private int ExecuteSqlScriptInsertMaintenance(
         using (SqlCommand command = new SqlCommand(sqlScript, connection))
         {
             object result = command.ExecuteScalar();
+
             if (result != null && int.TryParse(result.ToString(), out int insertedId))
-            {
                 return insertedId;
-            }
-            else
-            {
-                throw new Exception("Falha ao obter o ID do registro inserido.");
-            }
+
+            throw new Exception("Falha ao obter o ID do registro inserido.");
         }
     }
 }
+
 
 private void ExecuteSqlScriptUpdateCompany(string companyID, string companyName, string countryID, string countryName, string streetAddress, string zipCode, string city, string state, string vatNo, string email, string resNo, string oldCompany)
 {
@@ -1887,6 +1939,45 @@ private string ExecuteSqlScriptWithParameterHousekeepingRooms()
         }
 
         string sqlScript = File.ReadAllText(sqlScriptPath);
+
+        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+        {
+            connection.Open();
+
+            using (SqlCommand command = new SqlCommand(sqlScript, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    StringBuilder jsonResult = new StringBuilder();
+
+                    while (reader.Read())
+                    {
+                        string jsonRaw = reader[0]?.ToString();
+                        if (!string.IsNullOrEmpty(jsonRaw))
+                        {
+                            // Tratar para remover a chave JSON desnecessária
+                            var cleanedJson = CleanJson(jsonRaw);
+                            jsonResult.Append(cleanedJson);
+                        }
+                    }
+
+                    return jsonResult.ToString();
+                }
+            }
+        }
+    }
+
+    private string ExecuteSqlScriptWithParameterHousekeeping(string mpehotel)
+    {
+        string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "getHousekeeping.sql");
+
+        if (!File.Exists(sqlScriptPath))
+        {
+            throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+        }
+
+        string sqlScript = File.ReadAllText(sqlScriptPath);
+        sqlScript = sqlScript.Replace("@mpehotel", mpehotel);
 
         using (SqlConnection connection = new SqlConnection(config.ConnectionString))
         {
