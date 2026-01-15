@@ -9,6 +9,9 @@ using System.Threading;
 using System.Data.SqlClient;
 using System.IO.Compression;
 using System.Collections.Concurrent;
+using System.Data;
+using System.Data.SqlClient;
+using System.Text.Encodings.Web;
 
 public class DatabaseWindowsService : ServiceBase
 {
@@ -452,41 +455,262 @@ public class DatabaseWindowsService : ServiceBase
 {
     if (context.Request.HttpMethod == "POST")
     {
+      try
+    {
+        string mpehotel = context.Request.Headers["mpehotel"];
+        string zimmernr = context.Request.Headers["room"];
+        string bq = context.Request.Headers["bq"];
+        string reason = context.Request.Headers["reason"];
+        string text = context.Request.Headers["reasonName"];
+        string solved = context.Request.Headers["solved"];
+        string edate = context.Request.Headers["createdDateAt"];
+        string euser = context.Request.Headers["createdBy"];
+        string etime = context.Request.Headers["createdTimeAt"];
+        string sdate = context.Request.Headers["solvedDateAt"];
+        string suser = context.Request.Headers["solvedBy"];
+        string stime = context.Request.Headers["solvedTimeAt"];
+        string orgreason = context.Request.Headers["orgreason"];
+        string startdt = context.Request.Headers["resolutionStartDate"];
+        string startzt = context.Request.Headers["resolutionStartTime"];
+        string dauer = context.Request.Headers["resolutionEstimatedTime"];
+        string tstartdt = context.Request.Headers["tstartdt"];
+        string tstartzt = context.Request.Headers["tstartzt"];
+        string tdauer = context.Request.Headers["tdauer"];
+        string tkosten = context.Request.Headers["tkosten"];
+        string treason = context.Request.Headers["treason"];
+
+        // CAMPOS QUE DEVEM ACEITAR VAZIO
+        string ztext = context.Request.Headers["reasonNotes"];
+        string textlokal = context.Request.Headers["textlokal"];
+        string dokument = context.Request.Headers["dokument"];
+
+        string prio = context.Request.Headers["prio"];
+        string _del = context.Request.Headers["_del"];
+
+        // Normalização correta
+        ztext = string.IsNullOrWhiteSpace(ztext) ? "" : ztext;
+        textlokal = string.IsNullOrWhiteSpace(textlokal) ? "" : textlokal;
+        dokument = string.IsNullOrWhiteSpace(dokument) ? "" : dokument;
+
+        // (opcional mas recomendado) cortar tamanho
+        ztext = ztext.Length > 254 ? ztext.Substring(0, 254) : ztext;
+        textlokal = textlokal.Length > 1000 ? textlokal.Substring(0, 1000) : textlokal;
+
+        int insertedId = ExecuteSqlScriptInsertMaintenance(
+            mpehotel, zimmernr, bq, reason, text, solved, edate, euser, etime,
+            sdate, suser, stime, orgreason, startdt, startzt,
+            dauer, tstartdt, tstartzt, tdauer, tkosten, treason,
+            ztext, textlokal, dokument, prio, _del
+        );
+
+            // Retornar resposta no formato JSON
+            var jsonResponse = new { ReasonID = insertedId };
+            string responseJson = System.Text.Json.JsonSerializer.Serialize(jsonResponse);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(responseJson);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            var errorResponse = new { error = $"Erro nos parâmetros: {ex.Message}" };
+            string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+            context.Response.ContentType = "application/json";
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(errorJson);
+            }
+        }
+        catch (Exception ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            var errorResponse = new { error = $"Erro ao executar o SQL: {ex.Message}" };
+            string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+            context.Response.ContentType = "application/json";
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(errorJson);
+            }
+        }
+    }
+    else
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+        var errorResponse = new { error = "Método HTTP não suportado nesta rota." };
+        string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+        context.Response.ContentType = "application/json";
+        using (var writer = new StreamWriter(context.Response.OutputStream))
+        {
+            writer.Write(errorJson);
+        }
+    }
+}
+
+ else if (urlPath == "/updatemaintenance")
+{
+    if (context.Request.HttpMethod == "POST")
+    {
+      try
+    {
+        string refnr = context.Request.Headers["refnr"];
+        string zimmernr = context.Request.Headers["room"];
+
+        // CAMPOS QUE DEVEM ACEITAR VAZIO
+        string ztext = context.Request.Headers["reasonNotes"];
+        string textlokal = context.Request.Headers["textlokal"];
+
+        string solved = context.Request.Headers["solved"];
+        string suser = context.Request.Headers["suser"];
+        string sdate = context.Request.Headers["sdate"];
+        string stime = context.Request.Headers["stime"];
+
+
+        // Normalização correta
+        ztext = string.IsNullOrWhiteSpace(ztext) ? "" : ztext;
+        textlokal = string.IsNullOrWhiteSpace(textlokal) ? "" : textlokal;
+
+        // (opcional mas recomendado) cortar tamanho
+        ztext = ztext.Length > 254 ? ztext.Substring(0, 254) : ztext;
+        textlokal = textlokal.Length > 1000 ? textlokal.Substring(0, 1000) : textlokal;
+
+        int updatedId = ExecuteSqlScriptUpdateMaintenance(
+            refnr, zimmernr, ztext, textlokal, solved, suser, sdate, stime
+        );
+
+            // Retornar resposta no formato JSON
+            var jsonResponse = new { ReasonID = updatedId };
+            string responseJson = System.Text.Json.JsonSerializer.Serialize(jsonResponse);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(responseJson);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            var errorResponse = new { error = $"Erro nos parâmetros: {ex.Message}" };
+            string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+            context.Response.ContentType = "application/json";
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(errorJson);
+            }
+        }
+        catch (Exception ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            var errorResponse = new { error = $"Erro ao executar o SQL: {ex.Message}" };
+            string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+            context.Response.ContentType = "application/json";
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(errorJson);
+            }
+        }
+    }
+    else
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+        var errorResponse = new { error = "Método HTTP não suportado nesta rota." };
+        string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+        context.Response.ContentType = "application/json";
+        using (var writer = new StreamWriter(context.Response.OutputStream))
+        {
+            writer.Write(errorJson);
+        }
+    }
+}
+
+else if (urlPath == "/deletemaintenance")
+{
+    if (context.Request.HttpMethod == "DELETE")
+    {
+        try
+        {
+            string refnr = context.Request.Headers["refnr"];
+            string zimmernr = context.Request.Headers["room"];
+
+            if (string.IsNullOrWhiteSpace(refnr) || string.IsNullOrWhiteSpace(zimmernr))
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                var errorResponse = new { error = "refnr e room são obrigatórios." };
+                string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+                context.Response.ContentType = "application/json";
+                using (var writer = new StreamWriter(context.Response.OutputStream))
+                {
+                    writer.Write(errorJson);
+                }
+                return;
+            }
+
+            int deletedId = ExecuteSqlScriptDeleteMaintenance(refnr, zimmernr);
+
+            var jsonResponse = new { ReasonID = deletedId };
+            string responseJson = System.Text.Json.JsonSerializer.Serialize(jsonResponse);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(responseJson);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            var errorResponse = new { error = $"Erro nos parâmetros: {ex.Message}" };
+            string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+            context.Response.ContentType = "application/json";
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(errorJson);
+            }
+        }
+        catch (Exception ex)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            var errorResponse = new { error = $"Erro ao apagar manutenção: {ex.Message}" };
+            string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+            context.Response.ContentType = "application/json";
+            using (var writer = new StreamWriter(context.Response.OutputStream))
+            {
+                writer.Write(errorJson);
+            }
+        }
+    }
+    else
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+        var errorResponse = new { error = "Método HTTP não suportado nesta rota." };
+        string errorJson = System.Text.Json.JsonSerializer.Serialize(errorResponse);
+        context.Response.ContentType = "application/json";
+        using (var writer = new StreamWriter(context.Response.OutputStream))
+        {
+            writer.Write(errorJson);
+        }
+    }
+}
+
+else if (urlPath == "/updateroomstatus")
+{
+    if (context.Request.HttpMethod == "POST")
+    {
         try
         {
             // Captura os parâmetros dos headers, definindo " " como padrão para os campos opcionais
-            string mpehotel = context.Request.Headers["mpehotel"];
-            string zimmernr = context.Request.Headers["room"];
-            string bq = context.Request.Headers["bq"];
-            string reason = context.Request.Headers["reason"] ?? " ";
-            string text = context.Request.Headers["reasonName"] ?? " ";
-            string solved = context.Request.Headers["solved"] ?? " ";
-            string edate = context.Request.Headers["createdDateAt"] ?? " ";
-            string euser = context.Request.Headers["createdBy"] ?? " ";
-            string etime = context.Request.Headers["createdTimeAt"] ?? " ";
-            string sdate = context.Request.Headers["solvedDateAt"] ?? " ";
-            string suser = context.Request.Headers["solvedBy"] ?? " ";
-            string stime = context.Request.Headers["solvedTimeAt"] ?? " ";
-            string orgreason = context.Request.Headers["orgreason"] ?? " ";
-            string startdt = context.Request.Headers["resolutionStartDate"] ?? " ";
-            string startzt = context.Request.Headers["resolutionStartTime"] ?? " ";
-            string dauer = context.Request.Headers["resolutionEstimatedTime"] ?? " ";
-            string tstartdt = context.Request.Headers["tstartdt"] ?? " ";
-            string tstartzt = context.Request.Headers["tstartzt"] ?? " ";
-            string tdauer = context.Request.Headers["tdauer"] ?? " ";
-            string tkosten = context.Request.Headers["tkosten"] ?? " ";
-            string treason = context.Request.Headers["treason"] ?? " ";
-            string ztext = context.Request.Headers["reasonNotes"] ?? " ";
-            string textlokal = context.Request.Headers["textlokal"] ?? " ";
-            string dokument = context.Request.Headers["dokument"] ?? " ";
-            string prio = context.Request.Headers["prio"] ?? " ";
-            string _del = context.Request.Headers["_del"] ?? " ";
-
+            string roomStatus = context.Request.Headers["roomStatus"];
+            string internalRoom = context.Request.Headers["internalRoom"];
 
             // Executar o script SQL e obter o ID da empresa inserida
-            int insertedId = ExecuteSqlScriptInsertMaintenance(
-                mpehotel, zimmernr, bq, reason, text, solved, edate, euser, etime, sdate, suser, stime, orgreason, startdt, startzt,
-                dauer, tstartdt, tstartzt, tdauer, tkosten, treason, ztext, textlokal, dokument, prio, _del
+            int insertedId = ExecuteSqlScriptUpdateRoomStatus(
+                roomStatus, internalRoom
                 );
 
             // Retornar resposta no formato JSON
@@ -1539,9 +1763,9 @@ private int ExecuteSqlScriptInsertMaintenance(
 
     // Função para strings → devolve 'texto' ou NULL, com truncamento seguro
     string Q(string value, int maxLength) =>
-        string.IsNullOrWhiteSpace(value)
-            ? "NULL"
-            : $"'{value.Substring(0, Math.Min(value.Length, maxLength)).Replace("'", "''")}'";
+    string.IsNullOrWhiteSpace(value)
+        ? "''"  // antes era "NULL", agora envia string vazia
+        : $"'{value.Substring(0, Math.Min(value.Length, maxLength)).Replace("'", "''")}'";
 
     // Função para números → devolve valor ou NULL
     string N(string value) =>
@@ -1590,6 +1814,132 @@ private int ExecuteSqlScriptInsertMaintenance(
                 return insertedId;
 
             throw new Exception("Falha ao obter o ID do registro inserido.");
+        }
+    }
+}
+
+private int ExecuteSqlScriptUpdateMaintenance(
+    string refnr, string zimmernr, string ztext, string textlokal, string solved, string suser, string sdate, string stime
+)
+{
+    string sqlScriptPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "SQLScripts",
+        "updateMaintenance.sql"
+    );
+
+    if (!File.Exists(sqlScriptPath))
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+
+    string Q(string value, int maxLength) =>
+        string.IsNullOrWhiteSpace(value)
+            ? "''"
+            : $"'{value.Substring(0, Math.Min(value.Length, maxLength)).Replace("'", "''")}'";
+
+    string N(string value) =>
+        string.IsNullOrWhiteSpace(value) ? "NULL" : value;
+
+    sqlScript = sqlScript.Replace("<refnr>", N(refnr))
+                         .Replace("<zimmernr>", N(zimmernr))
+                         .Replace("<ztext>", Q(ztext, 254))
+                         .Replace("<textlokal>", Q(textlokal, 1000))
+                         .Replace("<solved>", N(solved))
+                         .Replace("<suser>", Q(suser, 50))
+                         .Replace("<sdate>", Q(sdate, 50))
+                         .Replace("<stime>", Q(stime, 5));
+
+    // Debug
+    File.WriteAllText(
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_updateMaintenance.sql"),
+        sqlScript
+    );
+
+    using var connection = new SqlConnection(config.ConnectionString);
+    connection.Open();
+
+    using var command = new SqlCommand(sqlScript, connection);
+    int rowsAffected = command.ExecuteNonQuery();
+
+    if (rowsAffected > 0)
+        return rowsAffected;
+
+    throw new Exception("Nenhum registro foi atualizado.");
+}
+
+private int ExecuteSqlScriptDeleteMaintenance(string refnr, string zimmernr)
+{
+    string sqlScriptPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "SQLScripts",
+        "deleteMaintenance.sql"
+    );
+
+    if (!File.Exists(sqlScriptPath))
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+
+    // Normalização das strings
+    sqlScript = sqlScript.Replace("<refnr>", N(refnr))
+                         .Replace("<zimmernr>", N(zimmernr));
+
+    // Debug opcional — salva o SQL final
+    File.WriteAllText(
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_deleteMaintenance.sql"),
+        sqlScript
+    );
+
+    using var connection = new SqlConnection(config.ConnectionString);
+    connection.Open();
+
+    using var command = new SqlCommand(sqlScript, connection);
+    int rowsAffected = command.ExecuteNonQuery();
+
+    // Retorna o número de linhas afetadas (0 = não encontrou registro)
+    return rowsAffected;
+}
+
+// Função auxiliar para normalizar strings
+private string N(string value) => string.IsNullOrWhiteSpace(value) ? "" : value;
+
+
+private int ExecuteSqlScriptUpdateRoomStatus(
+    string roomStatus, string internalRoom
+)
+{
+    string sqlScriptPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "SQLScripts",
+        "updateroomstatus.sql"
+    );
+
+    if (!File.Exists(sqlScriptPath))
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+
+    sqlScript = sqlScript.Replace("<internalRoom>", internalRoom)
+                         .Replace("<roomStatus>", roomStatus);
+
+    // Debug
+    File.WriteAllText(
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_updateroomstatus.sql"),
+        sqlScript
+    );
+
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+    {
+        connection.Open();
+        using (SqlCommand command = new SqlCommand(sqlScript, connection))
+        {
+            int rowsAffected = command.ExecuteNonQuery();
+
+            if (rowsAffected > 0)
+                return rowsAffected;
+
+            throw new Exception("Nenhum registro foi atualizado.");
         }
     }
 }
@@ -1967,44 +2317,82 @@ private string ExecuteSqlScriptWithParameterHousekeepingRooms()
         }
     }
 
-    private string ExecuteSqlScriptWithParameterHousekeeping(string mpehotel)
+private string ExecuteSqlScriptWithParameterHousekeeping(string mpehotel)
+{
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
-        string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "getHousekeeping.sql");
+        connection.Open();
 
-        if (!File.Exists(sqlScriptPath))
+        // 1️⃣ UPDATE / PROCESSAMENTO
+        ExecuteUpdateHousekeeping(connection, mpehotel);
+
+        // 2️⃣ GET JSON
+        return ExecuteGetHousekeeping(connection, mpehotel);
+    }
+}
+
+private void ExecuteUpdateHousekeeping(SqlConnection connection, string mpehotel)
+{
+    string sqlPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "SQLScripts",
+        "updateHousekeeping.sql"
+    );
+
+    string sql = File.ReadAllText(sqlPath);
+
+    using (SqlCommand cmd = new SqlCommand(sql, connection))
+    {
+        cmd.Parameters.Add("@mpehotelvalue", SqlDbType.Int)
+           .Value = int.Parse(mpehotel);
+
+        cmd.Parameters.Add("@currentDatevalue", SqlDbType.DateTime)
+            .Value = DateTime.Today;
+
+        cmd.ExecuteNonQuery(); // NUNCA ExecuteReader aqui
+    }
+}
+
+private string ExecuteGetHousekeeping(SqlConnection connection, string mpehotel)
+{
+    string sqlPath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        "SQLScripts",
+        "getHousekeeping.sql"
+    );
+
+    string sql = File.ReadAllText(sqlPath);
+
+    using (SqlCommand cmd = new SqlCommand(sql, connection))
+    {
+        cmd.Parameters.Add("@mpehotel", SqlDbType.Int)
+           .Value = int.Parse(mpehotel);
+
+        cmd.Parameters.Add("@currentDate", SqlDbType.Char, 8)
+           .Value = DateTime.Now.ToString("yyyyMMdd");
+
+        using (SqlDataReader reader = cmd.ExecuteReader())
         {
-            throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
-        }
+            StringBuilder sb = new StringBuilder();
 
-        string sqlScript = File.ReadAllText(sqlScriptPath);
-        sqlScript = sqlScript.Replace("@mpehotel", mpehotel);
-
-        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
-        {
-            connection.Open();
-
-            using (SqlCommand command = new SqlCommand(sqlScript, connection))
+            do
             {
-                using (SqlDataReader reader = command.ExecuteReader())
+                if (reader.HasRows)
                 {
-                    StringBuilder jsonResult = new StringBuilder();
-
                     while (reader.Read())
-                    {
-                        string jsonRaw = reader[0]?.ToString();
-                        if (!string.IsNullOrEmpty(jsonRaw))
-                        {
-                            // Tratar para remover a chave JSON desnecessária
-                            var cleanedJson = CleanJson(jsonRaw);
-                            jsonResult.Append(cleanedJson);
-                        }
-                    }
-
-                    return jsonResult.ToString();
+                        sb.Append(reader[0]?.ToString());
                 }
             }
+            while (reader.NextResult());
+
+            string json = sb.ToString();
+
+            return string.IsNullOrWhiteSpace(json)
+                ? "[]"
+                : CleanJson(json);
         }
     }
+}
 
 private string ExecuteSqlScriptWithParameterMaintenanceReasons()
     {
