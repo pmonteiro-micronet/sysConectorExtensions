@@ -786,19 +786,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\pista\\.nuget\\packages\\": {}
+    "C:\\Users\\cokas\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\work\\projetos\\sysConectorExtensions\\statements.csproj",
+      "projectUniqueName": "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\statements.csproj",
       "projectName": "statements",
-      "projectPath": "D:\\work\\projetos\\sysConectorExtensions\\statements.csproj",
-      "packagesPath": "C:\\Users\\pista\\.nuget\\packages\\",
-      "outputPath": "D:\\work\\projetos\\sysConectorExtensions\\obj\\",
+      "projectPath": "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\statements.csproj",
+      "packagesPath": "C:\\Users\\cokas\\.nuget\\packages\\",
+      "outputPath": "C:\\Trabalho\\Projetos\\Extensions\\ExtensionsService\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\pista\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\cokas\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0-windows"
@@ -822,7 +822,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0-windows7.0": {
@@ -855,31 +855,31 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.20, 8.0.20]"
+            "version": "[8.0.12, 8.0.12]"
           },
           {
             "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-            "version": "[8.0.20, 8.0.20]"
+            "version": "[8.0.12, 8.0.12]"
           },
           {
             "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[8.0.20, 8.0.20]"
+            "version": "[8.0.12, 8.0.12]"
           },
           {
             "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.20, 8.0.20]"
+            "version": "[8.0.12, 8.0.12]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-x64",
-            "version": "[8.0.20, 8.0.20]"
+            "version": "[8.0.12, 8.0.12]"
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Ref",
-            "version": "[8.0.20, 8.0.20]"
+            "version": "[8.0.12, 8.0.12]"
           },
           {
             "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-            "version": "[8.0.20, 8.0.20]"
+            "version": "[8.0.12, 8.0.12]"
           }
         ],
         "frameworkReferences": {
@@ -887,7 +887,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {

@@ -1447,6 +1447,74 @@ else if (urlPath == "/updatecompany")
                     context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 }
             }
+            else if (urlPath == "/getlockemailconfig")
+            {
+                if (context.Request.HttpMethod == "GET")
+                {
+                    try
+                    {
+                            string jsonResult = ExecuteSqlGetLockEmailConfig();
+                            responseMessage = jsonResult;
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                            context.Response.ContentType = "application/json";
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Método HTTP não suportado nesta rota.";
+                    context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                }
+            }
+            else if (urlPath == "/updatelockemailconfig")
+            {
+                if (context.Request.HttpMethod == "POST")
+                {
+                    try
+                    {
+                        // Validate the Authorization token
+                        if (!ValidateToken(context))
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                            context.Response.Close();
+                            return;
+                        }
+
+                        string emailTitlePT = context.Request.Headers["emailTitlePT"];
+                        string emailBodyPT = context.Request.Headers["emailBodyPT"];
+                        string emailTitleEN = context.Request.Headers["emailTitleEN"];
+                        string emailBodyEN = context.Request.Headers["emailBodyEN"];
+
+                        if (string.IsNullOrWhiteSpace(emailTitlePT) || string.IsNullOrWhiteSpace(emailBodyPT) || 
+                            string.IsNullOrWhiteSpace(emailTitleEN) || string.IsNullOrWhiteSpace(emailBodyEN))
+                        {
+                            responseMessage = "Erro: Os headers 'emailTitlePT', 'emailBodyPT', 'emailTitleEN' e 'emailBodyEN' são obrigatórios.";
+                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                        }
+                        else
+                        {
+                            string result = ExecuteSqlUpdateLockEmailConfig(emailTitlePT, emailBodyPT, emailTitleEN, emailBodyEN);
+                            responseMessage = result;
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                            context.Response.ContentType = "application/json";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    }
+                }
+                else
+                {
+                    responseMessage = "Método HTTP não suportado nesta rota.";
+                    context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                }
+            }
             else if (urlPath == "/verifyvat")
 {
     if (context.Request.HttpMethod == "GET")
@@ -2545,6 +2613,71 @@ private string ExecuteSqlSearchCompany(string companyName, string companyVAT, in
         }
     }
 }
+
+    private string ExecuteSqlGetLockEmailConfig()
+    {
+        string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "getlockemailconfig.sql");
+
+        if (!File.Exists(sqlScriptPath))
+            throw new FileNotFoundException("O arquivo SQL 'lockemailconfig.sql' não foi encontrado.");
+
+        string sqlScript = File.ReadAllText(sqlScriptPath);
+
+        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+        {
+            connection.Open();
+            using (SqlCommand command = new SqlCommand(sqlScript, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    StringBuilder jsonResult = new StringBuilder();
+                    while (reader.Read())
+                    {
+                        string jsonRaw = reader[0]?.ToString();
+                        if (!string.IsNullOrEmpty(jsonRaw))
+                            jsonResult.Append(CleanJson(jsonRaw));
+                    }
+                    return jsonResult.ToString();
+                }
+            }
+        }
+    }
+
+    private string ExecuteSqlUpdateLockEmailConfig(string emailTitlePT, string emailBodyPT, string emailTitleEN, string emailBodyEN)
+    {
+        string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "updatelockemailconfig.sql");
+
+        if (!File.Exists(sqlScriptPath))
+            throw new FileNotFoundException("O arquivo SQL 'updatelockemailconfig.sql' não foi encontrado.");
+
+        string sqlScript = File.ReadAllText(sqlScriptPath);
+
+        // Replace placeholders with header values
+        sqlScript = sqlScript
+            .Replace("{EMAIL_TITLE_PT}", emailTitlePT)
+            .Replace("{EMAIL_BODY_PT}", emailBodyPT)
+            .Replace("{EMAIL_TITLE_EN}", emailTitleEN)
+            .Replace("{EMAIL_BODY_EN}", emailBodyEN);
+
+        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+        {
+            connection.Open();
+            using (SqlCommand command = new SqlCommand(sqlScript, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    StringBuilder jsonResult = new StringBuilder();
+                    while (reader.Read())
+                    {
+                        string jsonRaw = reader[0]?.ToString();
+                        if (!string.IsNullOrEmpty(jsonRaw))
+                            jsonResult.Append(CleanJson(jsonRaw));
+                    }
+                    return jsonResult.ToString();
+                }
+            }
+        }
+    }
 
     private string CleanJson(string jsonRaw)
     {
