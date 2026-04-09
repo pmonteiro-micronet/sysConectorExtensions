@@ -955,6 +955,31 @@ else if (urlPath == "/updateroomstatus")
         responseMessage = "Método HTTP não suportado nesta rota.";
         context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
     }
+}else if (urlPath == "/doctype")
+{
+    if (context.Request.HttpMethod == "GET")
+    {
+        try
+        {
+            // Executar o script SQL para obter as nacionalidades
+            string jsonResult = ExecuteSqlScriptDocType();
+
+            // Retornar o resultado
+            responseMessage = jsonResult;
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.ContentType = "application/json";
+        }
+        catch (Exception ex)
+        {
+            responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        }
+    }
+    else
+    {
+        responseMessage = "Método HTTP não suportado nesta rota.";
+        context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+    }
 }
 else if (urlPath == "/insertcompany")
 {
@@ -1489,19 +1514,12 @@ else if (urlPath == "/updatecompany")
                         string emailTitleEN = context.Request.Headers["emailTitleEN"];
                         string emailBodyEN = context.Request.Headers["emailBodyEN"];
 
-                        if (string.IsNullOrWhiteSpace(emailTitlePT) || string.IsNullOrWhiteSpace(emailBodyPT) || 
-                            string.IsNullOrWhiteSpace(emailTitleEN) || string.IsNullOrWhiteSpace(emailBodyEN))
-                        {
-                            responseMessage = "Erro: Os headers 'emailTitlePT', 'emailBodyPT', 'emailTitleEN' e 'emailBodyEN' são obrigatórios.";
-                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        }
-                        else
-                        {
+                        
                             string result = ExecuteSqlUpdateLockEmailConfig(emailTitlePT, emailBodyPT, emailTitleEN, emailBodyEN);
                             responseMessage = result;
                             context.Response.StatusCode = (int)HttpStatusCode.OK;
                             context.Response.ContentType = "application/json";
-                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -1737,6 +1755,45 @@ private string ExecuteSqlEditAddress(
 private string ExecuteSqlScriptNationalities()
 {
     string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "nationalities.sql");
+
+    if (!File.Exists(sqlScriptPath))
+    {
+        throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+    }
+
+    string sqlScript = File.ReadAllText(sqlScriptPath);
+
+    using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+    {
+        connection.Open();
+
+        using (SqlCommand command = new SqlCommand(sqlScript, connection))
+        {
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                StringBuilder jsonResult = new StringBuilder();
+
+                while (reader.Read())
+                {
+                    string jsonRaw = reader[0]?.ToString();
+                    if (!string.IsNullOrEmpty(jsonRaw))
+                    {
+                        // Tratar para remover a chave JSON desnecessária
+                        var cleanedJson = CleanJson(jsonRaw);
+                        jsonResult.Append(cleanedJson);
+                    }
+                }
+
+                return jsonResult.ToString();
+            }
+        }
+    }
+}
+
+
+private string ExecuteSqlScriptDocType()
+{
+    string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "doctype.sql");
 
     if (!File.Exists(sqlScriptPath))
     {
