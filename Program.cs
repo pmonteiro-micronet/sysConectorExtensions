@@ -384,6 +384,33 @@ public class DatabaseWindowsService : ServiceBase
                     context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 }
             }
+            else if (urlPath == "/getlockstats")
+            {
+                // Verificar se o método é GET
+                if (context.Request.HttpMethod == "GET")
+                {
+                        try
+                        {
+                            // Executar o script SQL com o parâmetro HotelID
+                            string jsonResult = ExecuteSqlScriptWithParameterLockStats();
+
+                            // Retornar o resultado
+                            responseMessage = jsonResult;
+                            context.Response.StatusCode = (int)HttpStatusCode.OK;
+                            context.Response.ContentType = "application/json";
+                        }
+                        catch (Exception ex)
+                        {
+                            responseMessage = $"Erro ao executar o SQL: {ex.Message}";
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        }
+                }
+                else
+                {
+                    responseMessage = "Método HTTP não suportado nesta rota.";
+                    context.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                }
+            }
            else if (urlPath == "/gethousekeeping")
             {
                 // Verificar se o método é GET
@@ -831,6 +858,7 @@ else if (urlPath == "/updateroomstatus")
         {
             // Obter o nome do arquivo do cabeçalho
             string fileName = context.Request.Headers["FileName"];
+            string sessionUser = context.Request.Headers["sessionUser"];
             if (string.IsNullOrEmpty(fileName))
             {
                 responseMessage = "Cabeçalho 'FileName' é obrigatório.";
@@ -844,7 +872,7 @@ else if (urlPath == "/updateroomstatus")
                     string base64Content = reader.ReadToEnd();
                     if (!string.IsNullOrEmpty(base64Content))
                     {
-                        responseMessage = SaveBase64Pdf(base64Content, fileName);
+                        responseMessage = SaveBase64Pdf(base64Content, fileName, sessionUser);
                     }
                     else
                     {
@@ -869,6 +897,7 @@ else if (urlPath == "/updateroomstatus")
                         string jsonResult = ExecuteSqlScriptWithParameterSearchRecord(buchID);
 
                         // Fazer POST para o endpoint /api/submitReservation
+                        Log($"Resultado do SQL para BuchID {buchID}: {jsonResult}");
                         bool postSuccess = PostToSubmitReservation(jsonResult);
 
                         if (postSuccess)
@@ -1131,6 +1160,7 @@ else if (urlPath == "/updatecompany")
                     {
                         // Captura o parâmetro do header
                         string resNo = context.Request.Headers["resNo"];
+                        string sessionUser = context.Request.Headers["sessionUser"];
 
                         // Verifica se o campo obrigatório está vazio
                         if (string.IsNullOrWhiteSpace(resNo))
@@ -1139,7 +1169,7 @@ else if (urlPath == "/updatecompany")
                         }
 
                         // Executar o script SQL para atualizar a reserva
-                        ExecuteSqlScriptUpdateResStat(resNo);
+                        ExecuteSqlScriptUpdateResStat(resNo, sessionUser);
 
                         responseMessage = "Status da reserva atualizado com sucesso!";
                         context.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -2105,7 +2135,7 @@ private void ExecuteSqlScriptUpdateCompany(string companyID, string companyName,
     }
 }
 
-    private void ExecuteSqlScriptUpdateResStat(string resNo)
+    private void ExecuteSqlScriptUpdateResStat(string resNo, string sessionUser)
     {
         string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "updateResStat.sql");
 
@@ -2117,7 +2147,8 @@ private void ExecuteSqlScriptUpdateCompany(string companyID, string companyName,
         string sqlScript = File.ReadAllText(sqlScriptPath);
 
         // Substituir o placeholder pelo valor real
-        sqlScript = sqlScript.Replace("<ReservaID>", resNo);
+        sqlScript = sqlScript.Replace("<ReservaID>", resNo)
+                             .Replace("<SessionUser>", sessionUser);
 
         using (SqlConnection connection = new SqlConnection(config.ConnectionString))
         {
@@ -2407,6 +2438,44 @@ private void ExecuteSqlScriptUpdateCompany(string companyID, string companyName,
 private string ExecuteSqlScriptWithParameterHousekeepingRooms()
     {
         string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "getRooms.sql");
+
+        if (!File.Exists(sqlScriptPath))
+        {
+            throw new FileNotFoundException("O arquivo SQL não foi encontrado.");
+        }
+
+        string sqlScript = File.ReadAllText(sqlScriptPath);
+
+        using (SqlConnection connection = new SqlConnection(config.ConnectionString))
+        {
+            connection.Open();
+
+            using (SqlCommand command = new SqlCommand(sqlScript, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    StringBuilder jsonResult = new StringBuilder();
+
+                    while (reader.Read())
+                    {
+                        string jsonRaw = reader[0]?.ToString();
+                        if (!string.IsNullOrEmpty(jsonRaw))
+                        {
+                            // Tratar para remover a chave JSON desnecessária
+                            var cleanedJson = CleanJson(jsonRaw);
+                            jsonResult.Append(cleanedJson);
+                        }
+                    }
+
+                    return jsonResult.ToString();
+                }
+            }
+        }
+    }
+
+    private string ExecuteSqlScriptWithParameterLockStats()
+    {
+        string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "getLockStats.sql");
 
         if (!File.Exists(sqlScriptPath))
         {
@@ -2770,7 +2839,7 @@ private string ExecuteSqlSearchCompany(string companyName, string companyVAT, in
     }
 
 
-private string SaveBase64Pdf(string base64Content, string fileName)
+private string SaveBase64Pdf(string base64Content, string fileName, string sessionUser)
 {
     string saveDir = config.PdfSavePath; // Usar o caminho especificado na configuração
 
@@ -2801,7 +2870,7 @@ private string SaveBase64Pdf(string base64Content, string fileName)
         File.WriteAllBytes(filePath, decompressedBytes);
 
         // Executar o script savePdf.sql
-        ExecuteSqlSavePdf(filePath, fileName);
+        ExecuteSqlSavePdf(filePath, fileName, sessionUser);
 
         // Extrair o profileID do nome do arquivo
         string profileID = ExtractProfileID(fileName);
@@ -2945,7 +3014,7 @@ command.Parameters.AddWithValue("@RegisterID", registerID);
     }
 }
 
-private void ExecuteSqlSavePdf(string pdfFilePath, string fileName)
+private void ExecuteSqlSavePdf(string pdfFilePath, string fileName, string sessionUser)
 {
     string sqlScriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SQLScripts", "savePdf.sql");
 
@@ -2958,7 +3027,8 @@ private void ExecuteSqlSavePdf(string pdfFilePath, string fileName)
 
     string sqlScript = File.ReadAllText(sqlScriptPath)
         .Replace("{STATEMENT_REGFORM_WEBSERVICE.GuestID}", guestID)
-        .Replace("{STATEMENT_REGFORM_WEBSERVICE.FilePath}", pdfFilePath);
+        .Replace("{STATEMENT_REGFORM_WEBSERVICE.FilePath}", pdfFilePath)
+        .Replace("{STATEMENT_REGFORM_WEBSERVICE.SessionUser}", sessionUser);
 
     using (SqlConnection connection = new SqlConnection(config.ConnectionString))
     {
